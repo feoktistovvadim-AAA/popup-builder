@@ -3,9 +3,20 @@ import { z } from "zod";
 
 import { prisma } from "@/lib/prisma";
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Max-Age": "86400",
+};
+
 const querySchema = z.object({
   siteId: z.string().min(1),
 });
+
+export async function OPTIONS() {
+  return new NextResponse(null, { status: 204, headers: corsHeaders });
+}
 
 export async function GET(request: Request) {
   const url = new URL(request.url);
@@ -16,7 +27,7 @@ export async function GET(request: Request) {
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Invalid request", issues: parsed.error.flatten() },
-      { status: 400 }
+      { status: 400, headers: corsHeaders }
     );
   }
 
@@ -37,7 +48,10 @@ export async function GET(request: Request) {
   });
 
   if (!site) {
-    return NextResponse.json({ error: "Site not found" }, { status: 404 });
+    return NextResponse.json(
+      { error: "Site not found" },
+      { status: 404, headers: corsHeaders }
+    );
   }
 
   const popups = site.popups
@@ -60,6 +74,7 @@ export async function GET(request: Request) {
     },
     {
       headers: {
+        ...corsHeaders,
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
       },
     }

@@ -13,7 +13,10 @@ export default async function SitesPage() {
         orderBy: { createdAt: "desc" },
       })
     : [];
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const widgetOrigin =
+    process.env.NEXT_PUBLIC_WIDGET_ORIGIN ?? process.env.NEXT_PUBLIC_APP_URL ?? "";
+  const baseUrl =
+    widgetOrigin || (process.env.NODE_ENV === "development" ? "" : "");
 
   return (
     <div className="space-y-6">

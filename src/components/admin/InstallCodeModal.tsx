@@ -11,7 +11,7 @@ type SiteInfo = {
 
 type InstallCodeModalProps = {
   site: SiteInfo;
-  baseUrl?: string;
+  baseUrl: string;
   onClose: () => void;
 };
 
@@ -22,24 +22,28 @@ export default function InstallCodeModal({
 }: InstallCodeModalProps) {
   const [activeTab, setActiveTab] = useState<"direct" | "gtm">("direct");
   const [copied, setCopied] = useState(false);
+  const showWarning = !baseUrl && process.env.NODE_ENV !== "development";
 
-  const scriptSrc = baseUrl ? `${baseUrl.replace(/\/$/, "")}/pb.js` : "/pb.js";
+  const scriptBase = baseUrl.replace(/\/$/, "");
+  const scriptSrc = scriptBase ? `${scriptBase}/pb.js` : "/pb.js";
 
   const snippets = useMemo(() => {
     const direct = [
-      `<script>window.pbSettings={siteId:"${site.id}"};</script>`,
+      "<script>",
+      `  window.pbSettings = { siteId: "${site.id}", apiBase: "${scriptBase}" };`,
+      "</script>",
       `<script async src="${scriptSrc}"></script>`,
     ].join("\n");
 
     const gtm = [
       "<script>",
-      "(function(){",
-      `  window.pbSettings={siteId:"${site.id}"};`,
-      "  var s=document.createElement('script');",
-      `  s.src='${scriptSrc}';`,
-      "  s.async=true;",
-      "  document.head.appendChild(s);",
-      "})();",
+      "  (function () {",
+      `    window.pbSettings = { siteId: "${site.id}", apiBase: "${scriptBase}" };`,
+      "    var s = document.createElement('script');",
+      `    s.src = '${scriptSrc}';`,
+      "    s.async = true;",
+      "    document.head.appendChild(s);",
+      "  })();",
       "</script>",
     ].join("\n");
 
@@ -85,6 +89,13 @@ export default function InstallCodeModal({
           </button>
         </div>
 
+        {showWarning ? (
+          <div className="mt-4 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-900">
+            Widget origin is not configured. Set NEXT_PUBLIC_WIDGET_ORIGIN on
+            Vercel.
+          </div>
+        ) : null}
+
         <div className="mt-6 flex gap-2 text-sm">
           <button
             className={clsx(
@@ -126,6 +137,7 @@ export default function InstallCodeModal({
             className="rounded border border-black/10 px-3 py-1 text-xs text-black/80 hover:bg-black/[.04] dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
             type="button"
             onClick={handleCopy}
+            disabled={showWarning}
           >
             {copied ? "Copied" : "Copy"}
           </button>

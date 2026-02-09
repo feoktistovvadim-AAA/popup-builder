@@ -15,7 +15,7 @@ export default function SitesList({
   baseUrl,
 }: {
   sites: SiteInfo[];
-  baseUrl?: string;
+  baseUrl: string;
 }) {
   const [activeSite, setActiveSite] = useState<SiteInfo | null>(null);
 

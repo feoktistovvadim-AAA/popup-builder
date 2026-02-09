@@ -327,24 +327,58 @@
 
   window.PB = {
     init: function (config) {
-      if (!config || !config.siteId) {
-        console.warn("[PB] Missing siteId. Set window.pbSettings.siteId.");
-        return;
-      }
-      state.siteId = config.siteId;
-      state.userContext = config.userContext || {};
+      try {
+        var siteId = config && config.siteId;
+        var apiBaseFromSettings = config && config.apiBase;
 
-      if (bootCache && bootCache.siteId === state.siteId) {
-        handleBoot(bootCache);
-        return;
-      }
+        if (!siteId) {
+          console.warn("[PB] Missing siteId. Set window.pbSettings.siteId.");
+          return;
+        }
 
-      var url = "/api/v1/boot?siteId=" + encodeURIComponent(state.siteId);
-      getJson(url)
-        .then(handleBoot)
-        .catch(function () {
-          console.warn("[PB] Failed to load boot config.");
-        });
+        state.siteId = siteId;
+        state.userContext = (config && config.userContext) || {};
+
+        if (bootCache && bootCache.siteId === state.siteId) {
+          handleBoot(bootCache);
+          return;
+        }
+
+        var scriptSrc = "";
+        if (document.currentScript && document.currentScript.src) {
+          scriptSrc = document.currentScript.src;
+        } else {
+          var scripts = document.getElementsByTagName("script");
+          for (var i = 0; i < scripts.length; i += 1) {
+            var src = scripts[i].src || "";
+            if (src.indexOf("pb.js") !== -1) {
+              scriptSrc = src;
+              break;
+            }
+          }
+        }
+
+        var scriptOrigin = "";
+        if (scriptSrc) {
+          scriptOrigin = new URL(scriptSrc).origin;
+        }
+
+        var apiBase = apiBaseFromSettings || scriptOrigin || "";
+        console.log("[pb] apiBase", apiBase, "siteId", siteId);
+
+        var url =
+          apiBase +
+          "/api/v1/boot?siteId=" +
+          encodeURIComponent(state.siteId);
+
+        getJson(url)
+          .then(handleBoot)
+          .catch(function () {
+            console.warn("[PB] Failed to load boot config.");
+          });
+      } catch (error) {
+        console.warn("[PB] Boot failed.", error);
+      }
     },
   };
 

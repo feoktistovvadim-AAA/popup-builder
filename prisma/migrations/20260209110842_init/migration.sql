@@ -1,0 +1,1 @@
+-- Legacy SQLite migration (no-op for Postgres)

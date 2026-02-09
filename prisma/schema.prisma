@@ -1,0 +1,173 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum PopupStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  REVOKED
+}
+
+model User {
+  id            String        @id @default(cuid())
+  name          String?
+  email         String?       @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String?
+  accounts      Account[]
+  sessions      Session[]
+  memberships   Membership[]
+  invites       Invite[]      @relation("InvitedBy")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Organization {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String        @unique
+  memberships Membership[]
+  invites     Invite[]
+  sites       Site[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+}
+
+model Membership {
+  id             String       @id @default(cuid())
+  role           Role         @default(VIEWER)
+  userId         String
+  organizationId String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, organizationId])
+  @@index([organizationId])
+}
+
+model Invite {
+  id             String       @id @default(cuid())
+  email          String
+  role           Role         @default(VIEWER)
+  status         InviteStatus @default(PENDING)
+  organizationId String
+  invitedById    String?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy      User?        @relation("InvitedBy", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  expiresAt      DateTime?
+
+  @@index([organizationId])
+}
+
+model Site {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  domain         String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  popups         Popup[]
+  events         PopupEvent[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([organizationId, domain])
+  @@index([organizationId])
+}
+
+model Popup {
+  id        String        @id @default(cuid())
+  siteId    String
+  name      String
+  status    PopupStatus   @default(DRAFT)
+  site      Site          @relation(fields: [siteId], references: [id], onDelete: Cascade)
+  versions  PopupVersion[]
+  events    PopupEvent[]
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([siteId])
+}
+
+model PopupVersion {
+  id          String      @id @default(cuid())
+  popupId     String
+  version     Int
+  status      PopupStatus @default(DRAFT)
+  schema      Json
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  publishedAt DateTime?
+  popup       Popup       @relation(fields: [popupId], references: [id], onDelete: Cascade)
+
+  @@unique([popupId, version])
+  @@index([popupId])
+}
+
+model PopupEvent {
+  id        String   @id @default(cuid())
+  popupId   String
+  siteId    String
+  type      String
+  data      Json?
+  createdAt DateTime @default(now())
+  popup     Popup    @relation(fields: [popupId], references: [id], onDelete: Cascade)
+  site      Site     @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@index([popupId])
+  @@index([siteId])
+}

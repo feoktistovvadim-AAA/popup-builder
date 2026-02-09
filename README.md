@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Popup Builder SaaS
 
-## Getting Started
+Production-ready popup platform for iGaming teams. Build popups visually, configure targeting and triggers, publish versions, and embed `pb.js` on any site.
 
-First, run the development server:
+## Tech Stack
+- Next.js 16 (App Router) + TypeScript
+- Prisma + PostgreSQL (Neon compatible)
+- NextAuth (Google + Credentials) with JWT sessions
+- TailwindCSS + dnd-kit
 
+## Setup
+
+### 1) Install dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2) Configure environment variables
+Ensure `.env` includes the following keys:
+```
+DATABASE_URL=postgresql://...
+NEXTAUTH_URL=http://localhost:3001
+NEXTAUTH_SECRET=replace_this_with_random_secret
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3) Run Prisma migrations
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
+If you already have data in your Neon database, reset the schema first:
+```bash
+npx prisma migrate reset
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4) Start the dev server
+```bash
+PORT=3001 npm run dev
+```
 
-## Learn More
+Open `http://localhost:3001`.
 
-To learn more about Next.js, take a look at the following resources:
+## Core URLs
+- Admin: `/admin`
+- Sites: `/admin/sites`
+- Popups: `/admin/popups`
+- Builder: `/admin/popups/[popupId]/builder`
+- API decision: `POST /api/v1/decision`
+- Uploads: `POST /api/v1/upload`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## pb.js embed
+```html
+<script src="https://your-domain.com/pb.js"></script>
+<script>
+  PB.init({ siteId: "SITE_ID", userContext: {} })
+</script>
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Manual install test
+1. Go to `/admin/sites` and click **Install code** on a site.
+2. Copy the Direct embed snippet and paste into a test page `<head>`.
+3. Load the page and check the console for `[PB] boot loaded`.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Notes
+- Uploads are stored in `public/uploads`.
+- Use Neon Postgres for production.

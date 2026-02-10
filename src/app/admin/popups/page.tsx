@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import CreatePopupForm from "@/components/admin/CreatePopupForm";
+import CreatePopupFromPresetModal from "@/components/admin/CreatePopupFromPresetModal";
 import { getOrgContext } from "@/lib/org";
 import { prisma } from "@/lib/prisma";
 
@@ -50,8 +51,9 @@ export default async function AdminPopupsPage() {
             Create a site first to attach a popup.
           </p>
         ) : (
-          <div className="mt-4">
+          <div className="mt-4 space-y-4">
             <CreatePopupForm sites={sites} />
+            <CreatePopupFromPresetModal sites={sites} />
           </div>
         )}
       </div>

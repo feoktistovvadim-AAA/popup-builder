@@ -103,6 +103,10 @@ export default function PopupBuilder({
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [showJson, setShowJson] = useState(false);
+  const [showPresetModal, setShowPresetModal] = useState(false);
+  const [presetName, setPresetName] = useState("");
+  const [presetDescription, setPresetDescription] = useState("");
+  const [presetSaving, setPresetSaving] = useState(false);
 
   const selectedBlock = schema.blocks.find((block) => block.id === selectedBlockId) ?? null;
 
@@ -148,6 +152,34 @@ export default function PopupBuilder({
     setMessage(publish ? "Popup published." : "Draft saved.");
   };
 
+  const savePreset = async () => {
+    setPresetSaving(true);
+    setMessage(null);
+
+    const response = await fetch("/api/v1/presets", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: presetName,
+        description: presetDescription,
+        popupId,
+      }),
+    });
+
+    setPresetSaving(false);
+
+    if (!response.ok) {
+      const data = await response.json();
+      setMessage(data?.error ?? "Failed to save preset.");
+      return;
+    }
+
+    setPresetName("");
+    setPresetDescription("");
+    setShowPresetModal(false);
+    setMessage("Preset saved.");
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -165,6 +197,13 @@ export default function PopupBuilder({
               {message}
             </span>
           ) : null}
+          <button
+            className="rounded border border-black/10 px-4 py-2 text-sm text-black/80 hover:bg-black/[.04] disabled:opacity-60 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.06]"
+            type="button"
+            onClick={() => setShowPresetModal(true)}
+          >
+            Save as preset
+          </button>
           <button
             className="rounded border border-black/10 px-4 py-2 text-sm text-black/80 hover:bg-black/[.04] disabled:opacity-60 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.06]"
             type="button"
@@ -252,6 +291,73 @@ export default function PopupBuilder({
           ) : null}
         </div>
       </div>
+
+      {showPresetModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+          <div className="w-full max-w-md rounded-xl border border-black/10 bg-white p-6 shadow-lg dark:border-white/10 dark:bg-black">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-semibold text-black dark:text-white">
+                  Save preset
+                </h2>
+                <p className="mt-1 text-sm text-black/60 dark:text-white/60">
+                  Save this popup design and rules as a preset.
+                </p>
+              </div>
+              <button
+                className="rounded p-1 text-black/60 hover:bg-black/[.04] dark:text-white/60 dark:hover:bg-white/[.08]"
+                type="button"
+                onClick={() => setShowPresetModal(false)}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="text-xs font-medium text-black/70 dark:text-white/70">
+                  Preset name
+                </label>
+                <input
+                  className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
+                  value={presetName}
+                  onChange={(event) => setPresetName(event.target.value)}
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-black/70 dark:text-white/70">
+                  Description (optional)
+                </label>
+                <textarea
+                  className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
+                  rows={3}
+                  value={presetDescription}
+                  onChange={(event) => setPresetDescription(event.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="mt-6 flex items-center justify-end gap-2">
+              <button
+                className="rounded border border-black/10 px-4 py-2 text-sm text-black/80 hover:bg-black/[.04] dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.06]"
+                type="button"
+                onClick={() => setShowPresetModal(false)}
+              >
+                Cancel
+              </button>
+              <button
+                className="rounded bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90 disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-white/90"
+                type="button"
+                disabled={presetSaving || !presetName}
+                onClick={savePreset}
+              >
+                {presetSaving ? "Saving..." : "Save preset"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -148,3 +148,9 @@ Suggested format:
 [PB] debug trigger { type, result }
 [PB] debug frequency { key, data, allowed }
 ```
+
+## Preset Quick Test
+1. Open a popup in the builder and click **Save as preset**.
+2. Go to `/admin/popups` → **From preset**.
+3. Select the preset and choose import options.
+4. Create and verify the new popup opens in the builder with imported sections.

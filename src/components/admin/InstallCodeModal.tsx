@@ -48,7 +48,7 @@ export default function InstallCodeModal({
     ].join("\n");
 
     return { direct, gtm };
-  }, [site.id, scriptSrc]);
+  }, [site.id, scriptSrc, scriptBase]);
 
   const handleCopy = async () => {
     const value = activeTab === "direct" ? snippets.direct : snippets.gtm;

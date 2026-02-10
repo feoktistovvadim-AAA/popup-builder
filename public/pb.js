@@ -315,7 +315,7 @@
       } else if (matchType === "regex") {
         try {
           matched = new RegExp(pattern, "i").test(href);
-        } catch (error) {
+        } catch {
           debugLog("invalid url_match regex", { popupId: popupId, pattern: pattern });
           matched = false;
         }
@@ -669,21 +669,6 @@
     });
   }
 
-  function handleDecision(data) {
-    if (!data || !data.popups) return;
-    data.popups.forEach(function (popup) {
-      var schema = popup.schema || {};
-      if (!matchesTargeting(schema.targeting || [])) return;
-      var frequencyCheck = checkFrequency(popup, schema.frequency || {});
-      if (!frequencyCheck.allowed) {
-        state.debugInfo.blockedReason = frequencyCheck.reason;
-        renderDebugHud();
-        return;
-      }
-      setupTriggers(popup);
-    });
-  }
-
   function handleBoot(data) {
     if (!data) return;
     bootCache = data;
@@ -784,8 +769,8 @@
           .catch(function () {
             console.warn("[PB] Failed to load boot config.");
           });
-      } catch (error) {
-        console.warn("[PB] Boot failed.", error);
+      } catch {
+        console.warn("[PB] Boot failed.");
       }
     },
   };
@@ -795,8 +780,8 @@
       window.dispatchEvent(
         new CustomEvent("pb:" + eventName, { detail: payload })
       );
-    } catch (error) {
-      console.warn("[PB] pbTrack failed.", error);
+    } catch {
+      console.warn("[PB] pbTrack failed.");
     }
   };
 

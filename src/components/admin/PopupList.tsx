@@ -110,58 +110,60 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
           return (
             <div
               key={popup.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded border border-black/10 px-4 py-3 dark:border-white/10"
+              className="flex flex-col items-start justify-between gap-4 rounded-lg border border-black/10 px-4 py-4 dark:border-white/10 sm:flex-row sm:items-center"
             >
               <div>
                 <div className="font-medium text-black dark:text-white">
                   {popup.name}
                 </div>
-                <div className="text-black/60 dark:text-white/60">
+                <div className="text-sm text-black/60 dark:text-white/60">
                   {popup.site.name} · {popup.site.domain}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="rounded bg-black/5 px-3 py-1 text-xs text-black/70 dark:bg-white/10 dark:text-white/70">
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+                <span className="rounded bg-black/5 px-2.5 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
                   {popup.status}
                 </span>
                 {latestVersion ? (
-                  <span className="rounded bg-black/5 px-3 py-1 text-xs text-black/70 dark:bg-white/10 dark:text-white/70">
+                  <span className="rounded bg-black/5 px-2.5 py-1 text-xs font-medium text-black/70 dark:bg-white/10 dark:text-white/70">
                     v{latestVersion.version}
                   </span>
                 ) : null}
 
-                <Link
-                  className="rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
-                  href={`/admin/popups/${popup.id}/builder`}
-                >
-                  Open builder
-                </Link>
-                <button
-                  className="rounded border border-black/10 px-3 py-1.5 text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
-                  type="button"
-                  disabled={isLoading}
-                  onClick={() => runAction(popup, "duplicate")}
-                >
-                  Duplicate
-                </button>
-                {popup.status === "PUBLISHED" ? (
+                <div className="flex flex-1 items-center justify-end gap-2 sm:flex-none">
+                  <Link
+                    className="rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+                    href={`/admin/popups/${popup.id}/builder`}
+                  >
+                    Builder
+                  </Link>
                   <button
-                    className="rounded border border-black/10 px-3 py-1.5 text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
+                    className="rounded-lg border border-black/10 px-3 py-1.5 text-xs font-medium text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
                     type="button"
                     disabled={isLoading}
-                    onClick={() => runAction(popup, "unpublish")}
+                    onClick={() => runAction(popup, "duplicate")}
                   >
-                    Unpublish
+                    Duplicate
                   </button>
-                ) : null}
-                <button
-                  className="rounded border border-black/10 px-3 py-1.5 text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
-                  type="button"
-                  disabled={isLoading || popup.status === "ARCHIVED"}
-                  onClick={() => requestArchiveConfirm(popup)}
-                >
-                  Archive
-                </button>
+                  {popup.status === "PUBLISHED" ? (
+                    <button
+                      className="rounded-lg border border-black/10 px-3 py-1.5 text-xs font-medium text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
+                      type="button"
+                      disabled={isLoading}
+                      onClick={() => runAction(popup, "unpublish")}
+                    >
+                      Unpublish
+                    </button>
+                  ) : null}
+                  <button
+                    className="rounded-lg border border-black/10 px-3 py-1.5 text-xs font-medium text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
+                    type="button"
+                    disabled={isLoading || popup.status === "ARCHIVED"}
+                    onClick={() => requestArchiveConfirm(popup)}
+                  >
+                    Archive
+                  </button>
+                </div>
               </div>
             </div>
           );

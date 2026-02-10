@@ -49,7 +49,7 @@ export default function CreatePopupForm({ sites }: { sites: SiteOption[] }) {
             Popup name
           </label>
           <input
-            className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
+            className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white md:text-sm"
             value={name}
             onChange={(event) => setName(event.target.value)}
             placeholder="Welcome Bonus"
@@ -61,7 +61,7 @@ export default function CreatePopupForm({ sites }: { sites: SiteOption[] }) {
             Site
           </label>
           <select
-            className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
+            className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white md:text-sm"
             value={siteId}
             onChange={(event) => setSiteId(event.target.value)}
           >

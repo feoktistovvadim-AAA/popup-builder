@@ -40,7 +40,11 @@ if (fs.existsSync(testDbPath)) {
 // 5. Push schema to test db
 try {
     console.log('🚀 Pushing schema to test db...');
+    console.log('🚀 Pushing schema to test db...');
     execSync(`npx prisma db push --schema=${testSchemaPath}`, { stdio: 'inherit' });
+
+    console.log('🔄 Regenerating Prisma Client for SQLite...');
+    execSync(`npx prisma generate --schema=${testSchemaPath}`, { stdio: 'inherit' });
 
     console.log('🌱 Seeding test database...');
     execSync(`npx ts-node prisma/seed-test.ts`, {

@@ -7,7 +7,7 @@ import clsx from "clsx";
 
 import OrgSwitcher from "@/components/admin/OrgSwitcher";
 
-const navItems = [
+export const navItems = [
   { href: "/admin", label: "Overview", icon: "dashboard" },
   { href: "/admin/sites", label: "Sites", icon: "globe" },
   { href: "/admin/popups", label: "Popups", icon: "layers" },
@@ -15,7 +15,7 @@ const navItems = [
   { href: "/admin/settings", label: "Settings", icon: "settings" },
 ] as const;
 
-const icons: Record<string, ReactElement> = {
+export const icons: Record<string, ReactElement> = {
   dashboard: (
     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
       <path
@@ -100,7 +100,7 @@ export default function AdminSidebar({
   return (
     <aside
       className={clsx(
-        "flex shrink-0 flex-col border-r border-black/10 bg-white dark:border-white/10 dark:bg-black",
+        "hidden md:flex shrink-0 flex-col border-r border-black/10 bg-white dark:border-white/10 dark:bg-black",
         collapsed ? "w-16" : "w-64"
       )}
     >

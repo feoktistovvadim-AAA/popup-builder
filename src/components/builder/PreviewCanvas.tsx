@@ -7,7 +7,6 @@ import { PopupBlock, PopupSchemaV2 } from "@/lib/builder/schema";
 
 function renderBlock(block: PopupBlock, isSelected: boolean) {
   const commonClass = clsx(
-    "w-full",
     isSelected && "ring-2 ring-purple-500 ring-offset-2 ring-offset-transparent"
   );
 
@@ -20,10 +19,12 @@ function renderBlock(block: PopupBlock, isSelected: boolean) {
       };
       return (
         <h2
-          className={clsx("text-2xl font-semibold", commonClass)}
+          className={clsx("font-semibold leading-tight", commonClass, "w-full")}
           style={{
+            fontSize: "24px",
             textAlign: (props.align ?? "left") as CSSProperties["textAlign"],
             color: props.color ?? "#fff",
+            margin: 0,
           }}
         >
           {props.text ?? "Headline"}
@@ -38,10 +39,12 @@ function renderBlock(block: PopupBlock, isSelected: boolean) {
       };
       return (
         <p
-          className={clsx("text-sm leading-6", commonClass)}
+          className={clsx("leading-snug", commonClass, "w-full")}
           style={{
+            fontSize: "14px",
             textAlign: (props.align ?? "left") as CSSProperties["textAlign"],
             color: props.color ?? "#d1d5db",
+            margin: 0,
           }}
         >
           {props.text ?? "Supporting text goes here."}
@@ -54,14 +57,26 @@ function renderBlock(block: PopupBlock, isSelected: boolean) {
         backgroundColor?: string;
         textColor?: string;
         borderRadius?: number;
+        fontSize?: number;
+        fullWidth?: boolean;
+        borderEnabled?: boolean;
+        borderWidth?: number;
+        borderColor?: string;
       };
       return (
         <button
-          className={clsx("w-full py-2 text-sm font-semibold", commonClass)}
+          className={clsx("py-2 font-semibold transition-opacity hover:opacity-90", commonClass)}
           style={{
             backgroundColor: props.backgroundColor ?? "#7c3aed",
             color: props.textColor ?? "#fff",
             borderRadius: props.borderRadius ?? 10,
+            fontSize: props.fontSize ? `${props.fontSize}px` : "16px",
+            width: props.fullWidth ? "100%" : "auto",
+            display: props.fullWidth ? "block" : "inline-block",
+            border: props.borderEnabled
+              ? `${props.borderWidth ?? 1}px solid ${props.borderColor ?? "#fff"}`
+              : "none",
+            cursor: "pointer",
           }}
           type="button"
         >
@@ -79,7 +94,7 @@ function renderBlock(block: PopupBlock, isSelected: boolean) {
       return props.src ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          className={commonClass}
+          className={clsx(commonClass, "block")}
           src={props.src}
           alt={props.alt ?? "Popup image"}
           style={{
@@ -90,7 +105,7 @@ function renderBlock(block: PopupBlock, isSelected: boolean) {
       ) : (
         <div
           className={clsx(
-            "flex h-24 items-center justify-center rounded border border-dashed border-white/30 text-xs text-white/50",
+            "flex h-24 w-full items-center justify-center rounded border border-dashed border-white/30 text-xs text-white/50",
             commonClass
           )}
         >
@@ -102,7 +117,7 @@ function renderBlock(block: PopupBlock, isSelected: boolean) {
       const props = block.props as { height?: number };
       return (
         <div
-          className={commonClass}
+          className={clsx(commonClass, "w-full")}
           style={{ height: props.height ?? 16 }}
         />
       );
@@ -123,10 +138,10 @@ export default function PreviewCanvas({
 }) {
   const layout = schema.template.layout;
   const containerStyle: CSSProperties = {
-    maxWidth: layout.maxWidthDesktop ?? 420,
+    maxWidth: layout.maxWidthDesktop ? `${layout.maxWidthDesktop}px` : "420px",
     width: "100%",
-    padding: layout.paddingDesktop ?? 24,
-    borderRadius: layout.borderRadius ?? 16,
+    padding: layout.paddingDesktop ? `${layout.paddingDesktop}px` : "24px",
+    borderRadius: layout.borderRadius ? `${layout.borderRadius}px` : "16px",
     backgroundColor: layout.backgroundColor ?? "#0b0b0f",
     boxShadow:
       layout.shadow === "none"

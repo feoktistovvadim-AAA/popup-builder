@@ -65,3 +65,10 @@ Single source of truth for core flows and integration contracts.
 - Frequency can block popups if localStorage/sessionStorage already contains keys.
 - `/api/v1/boot` is cached; recently published popups may take up to 60s.
 - If `apiBase` is missing, external sites will request boot from their own domain.
+
+## Popup Lifecycle Verification Checklist
+- Create popup, publish it, confirm it appears in `/api/v1/boot`.
+- Unpublish popup, confirm it disappears from `/api/v1/boot`.
+- Duplicate popup, confirm the new popup appears as `DRAFT` and builder opens.
+- Archive popup, confirm it is hidden by default and appears when "Show archived" is enabled.
+- Delete popup, confirm it is permanently removed.

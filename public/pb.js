@@ -788,6 +788,19 @@
         console.warn("[PB] Boot failed.");
       }
     },
+    getDebugInfo: function () {
+      return state.debugInfo;
+    },
+    reset: function () {
+      try {
+        localStorage.clear();
+        sessionStorage.clear();
+        console.log("[PB] Storage cleared. Reloading...");
+        window.location.reload();
+      } catch (e) {
+        console.error("[PB] Failed to clear storage", e);
+      }
+    },
   };
 
   window.pbTrack = function (eventName, payload) {

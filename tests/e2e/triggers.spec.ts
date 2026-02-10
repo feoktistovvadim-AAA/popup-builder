@@ -1,0 +1,184 @@
+
+import { test, expect } from '@playwright/test';
+
+// Define the popup site ID created in seed-test.ts
+// We will retrieve it dynamically ideally, but for now we know the org/site creation order 
+// or simple queries. In seed-test.ts we created one site.
+// Let's rely on finding the site ID via a data attribute or just hardcoding if deterministic?
+// IDs are CUIDs so not deterministic.
+// We can expose the siteId via a test endpoint or just checking the DOM if we inject it?
+// Or we can just use the fact that the seed script runs before this and we can read the DB?
+// Better: The test page should accept a siteId? No, the boot API takes it.
+// We need to know the site ID to pass to `PB.init`.
+// Let's create a test page that fetches the site ID or we hardcode a reliable one in seed?
+// Prisma CUIDs are standard.
+// Let's modify seed-test.ts to use a fixed ID or write the ID to a temp file.
+// For now, let's query the DB from the test? SQLite is available.
+// Actually, `pb.js` initialization is usually done with a snippet.
+// We can inject a script into a blank page that inits PB.
+
+import { PrismaClient } from '@prisma/client';
+import path from 'path';
+
+const prisma = new PrismaClient();
+
+let siteId: string;
+
+test.beforeAll(async () => {
+    const site = await prisma.site.findFirst({ where: { domain: 'localhost:3000' } });
+    if (!site) throw new Error('Test site not found. Seed failed?');
+    siteId = site.id;
+});
+
+test.afterAll(async () => {
+    await prisma.$disconnect();
+});
+
+test.describe('Popup Triggers', () => {
+
+
+
+    // Helper to init PB
+    const initPB = async (page: any) => {
+        await page.goto('/test-popup.html'); // We'll create this simple file
+        await page.evaluate((id: string) => {
+            // @ts-ignore
+            window.pbSettings = { siteId: id, debug: true };
+            // @ts-ignore
+            if (window.PB) window.PB.init(window.pbSettings);
+        }, siteId);
+        await page.waitForSelector('#pb-debug-hud');
+    };
+
+    test('should fire after_seconds trigger', async ({ page }) => {
+        await initPB(page);
+        // Popup name: 'timer-popup', 2 seconds
+        const popup = page.locator('text=Timer Popup');
+        await expect(popup).not.toBeVisible();
+        await page.waitForTimeout(2500);
+        await expect(popup).toBeVisible();
+
+        // Verify debug overlay
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: after_seconds');
+    });
+
+    test('should fire scroll_percent trigger', async ({ page }) => {
+        await initPB(page);
+        // Popup name: 'scroll-popup', 50%
+        const popup = page.locator('text=Scroll Popup');
+
+        // Ensure page is scrollable
+        await page.evaluate(() => document.body.style.height = '3000px');
+
+        await expect(popup).not.toBeVisible();
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight * 0.6));
+        await page.dispatchEvent('body', 'scroll'); // Trigger scroll event manually just in case
+
+        await expect(popup).toBeVisible();
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: scroll_percent');
+    });
+
+    test('should fire exit_intent trigger', async ({ page }) => {
+        await initPB(page);
+        // Popup name: 'exit-popup'
+        const popup = page.locator('text=Exit Popup');
+
+        await expect(popup).not.toBeVisible();
+        // Move mouse out of viewport at top
+        await page.mouse.move(500, 500);
+        await page.mouse.move(500, 5); // Near top
+        // Playwright doesn't strictly "leave" the window context easily, 
+        // but generating a mouseout event on document works for our logic:
+        // document.addEventListener("mouseout", onMouseOut);
+
+        // Trigger manually if mouse move isn't enough (often flaky)
+        await page.evaluate(() => {
+            document.dispatchEvent(new MouseEvent('mouseout', { clientY: 0, bubbles: true }));
+        });
+
+        await expect(popup).toBeVisible();
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: exit_intent_desktop');
+    });
+
+    test('should fire inactivity trigger', async ({ page }) => {
+        await initPB(page);
+        // Popup name: 'inactivity-popup', 3s
+        const popup = page.locator('text=Inactivity Popup');
+
+        await expect(popup).not.toBeVisible();
+        await page.waitForTimeout(3500); // Wait > 3s without input
+        await expect(popup).toBeVisible();
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: inactivity');
+    });
+
+    test('should fire pageview_count trigger', async ({ page }) => {
+        // Popup name: 'pageview-popup', count 3
+
+        // View 1
+        await initPB(page);
+        await expect(page.locator('text=Pageview Popup')).not.toBeVisible();
+
+        // View 2 (reload)
+        await page.reload();
+        await page.evaluate((id: string) => {
+            // @ts-ignore
+            window.PB.init({ siteId: id, debug: true });
+        }, siteId);
+        await expect(page.locator('text=Pageview Popup')).not.toBeVisible();
+
+        // View 3 (reload)
+        await page.reload();
+        await page.evaluate((id: string) => {
+            // @ts-ignore
+            window.PB.init({ siteId: id, debug: true });
+        }, siteId);
+
+        await expect(page.locator('text=Pageview Popup')).toBeVisible();
+    });
+
+    test('should fire custom_event trigger', async ({ page }) => {
+        await initPB(page);
+        // Popup: 'custom-popup', event: 'deposit_failed'
+        const popup = page.locator('text=Custom Event Popup');
+
+        await expect(popup).not.toBeVisible();
+
+        // Dispatch event
+        await page.evaluate(() => {
+            // @ts-ignore
+            window.pbTrack('deposit_failed', { amount: 100 });
+        });
+
+        await expect(popup).toBeVisible();
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: custom_event');
+    });
+
+    test('should respect targeting (url_match)', async ({ page }) => {
+        // We'll stub the URL in the test environment if possible, 
+        // or just rely on the test page URL.
+        // Our test page is /test-popup.html
+        // We seeded a popup for 'test-page' contains.
+
+        // Go to a URL that matches (test-popup.html contains 'test-popup', close enough to 'test-page'? No.)
+        // Seeded pattern: 'test-page'
+        // Let's create a route that matches, or change seed to 'test-popup'.
+        // Changing expectation to match current setup: seed uses 'test-page'.
+        // URL is 'test-popup.html' -> does NOT contain 'test-page'.
+
+        // Let's update the seed to match our actual test URL or vice versa.
+        // I'll update seed in next step if this fails, but better to plan ahead.
+        // Actually, let's just use `history.pushState` to change the URL client-side before init.
+
+        await page.goto('/test-popup.html');
+        await page.evaluate(() => history.pushState({}, '', '/products/test-page-123'));
+
+        await page.evaluate((id: string) => {
+            // @ts-ignore
+            window.PB.init({ siteId: id, debug: true });
+        }, siteId);
+
+        const popup = page.locator('text=URL Popup');
+        await expect(popup).toBeVisible();
+    });
+
+});

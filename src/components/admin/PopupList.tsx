@@ -17,14 +17,12 @@ type PopupListItem = {
   }>;
 };
 
-type ConfirmAction = "archive" | "delete";
-
 export default function PopupList({ popups }: { popups: PopupListItem[] }) {
   const router = useRouter();
   const [showArchived, setShowArchived] = useState(false);
   const [loadingPopupId, setLoadingPopupId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [toastError, setToastError] = useState<string | null>(null);
+  const [confirmArchive, setConfirmArchive] = useState(false);
   const [confirmPopup, setConfirmPopup] = useState<PopupListItem | null>(null);
 
   const visiblePopups = useMemo(
@@ -37,9 +35,9 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
 
   const runAction = async (
     popup: PopupListItem,
-    action: "duplicate" | "unpublish" | "archive" | "delete"
+    action: "duplicate" | "unpublish" | "archive"
   ) => {
-    setError(null);
+    setToastError(null);
     setLoadingPopupId(popup.id);
 
     try {
@@ -47,14 +45,12 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
         duplicate: `/api/v1/popups/${popup.id}/duplicate`,
         unpublish: `/api/v1/popups/${popup.id}/unpublish`,
         archive: `/api/v1/popups/${popup.id}/archive`,
-        delete: `/api/v1/popups/${popup.id}`,
       };
 
       const methodMap = {
         duplicate: "POST",
         unpublish: "POST",
         archive: "POST",
-        delete: "DELETE",
       };
 
       const response = await fetch(endpointMap[action], {
@@ -74,19 +70,19 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
 
       router.refresh();
     } catch (actionError) {
-      setError(
+      setToastError(
         actionError instanceof Error ? actionError.message : "Action failed."
       );
     } finally {
       setLoadingPopupId(null);
-      setConfirmAction(null);
+      setConfirmArchive(false);
       setConfirmPopup(null);
     }
   };
 
-  const requestConfirm = (popup: PopupListItem, action: ConfirmAction) => {
+  const requestArchiveConfirm = (popup: PopupListItem) => {
     setConfirmPopup(popup);
-    setConfirmAction(action);
+    setConfirmArchive(true);
   };
 
   return (
@@ -101,10 +97,6 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
           Show archived
         </label>
       </div>
-
-      {error ? (
-        <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
-      ) : null}
 
       {visiblePopups.length === 0 ? (
         <p className="text-sm text-black/60 dark:text-white/60">
@@ -138,74 +130,59 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                   </span>
                 ) : null}
 
-                <details className="relative">
-                  <summary className="list-none cursor-pointer rounded border border-black/10 px-2 py-1 text-xs text-black/70 hover:bg-black/[.04] dark:border-white/10 dark:text-white/70 dark:hover:bg-white/[.08]">
-                    ...
-                  </summary>
-                  <div className="absolute right-0 z-10 mt-1 min-w-40 rounded-lg border border-black/10 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-black">
-                    <Link
-                      className="block rounded px-2 py-1.5 text-xs text-black/80 hover:bg-black/[.04] dark:text-white/80 dark:hover:bg-white/[.08]"
-                      href={`/admin/popups/${popup.id}/builder`}
-                    >
-                      Open builder
-                    </Link>
-                    <button
-                      className="block w-full rounded px-2 py-1.5 text-left text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:text-white/80 dark:hover:bg-white/[.08]"
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => runAction(popup, "duplicate")}
-                    >
-                      Duplicate
-                    </button>
-                    <button
-                      className="block w-full rounded px-2 py-1.5 text-left text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:text-white/80 dark:hover:bg-white/[.08]"
-                      type="button"
-                      disabled={isLoading || popup.status !== "PUBLISHED"}
-                      onClick={() => runAction(popup, "unpublish")}
-                    >
-                      Unpublish
-                    </button>
-                    <button
-                      className="block w-full rounded px-2 py-1.5 text-left text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:text-white/80 dark:hover:bg-white/[.08]"
-                      type="button"
-                      disabled={isLoading || popup.status === "ARCHIVED"}
-                      onClick={() => requestConfirm(popup, "archive")}
-                    >
-                      Archive
-                    </button>
-                    <button
-                      className="block w-full rounded px-2 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 disabled:opacity-50 dark:text-red-400 dark:hover:bg-red-950/30"
-                      type="button"
-                      disabled={isLoading}
-                      onClick={() => requestConfirm(popup, "delete")}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </details>
+                <Link
+                  className="rounded bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
+                  href={`/admin/popups/${popup.id}/builder`}
+                >
+                  Open builder
+                </Link>
+                <button
+                  className="rounded border border-black/10 px-3 py-1.5 text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
+                  type="button"
+                  disabled={isLoading}
+                  onClick={() => runAction(popup, "duplicate")}
+                >
+                  Duplicate
+                </button>
+                {popup.status === "PUBLISHED" ? (
+                  <button
+                    className="rounded border border-black/10 px-3 py-1.5 text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
+                    type="button"
+                    disabled={isLoading}
+                    onClick={() => runAction(popup, "unpublish")}
+                  >
+                    Unpublish
+                  </button>
+                ) : null}
+                <button
+                  className="rounded border border-black/10 px-3 py-1.5 text-xs text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
+                  type="button"
+                  disabled={isLoading || popup.status === "ARCHIVED"}
+                  onClick={() => requestArchiveConfirm(popup)}
+                >
+                  Archive
+                </button>
               </div>
             </div>
           );
         })
       )}
 
-      {confirmAction && confirmPopup ? (
+      {confirmArchive && confirmPopup ? (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md rounded-xl border border-black/10 bg-white p-6 shadow-lg dark:border-white/10 dark:bg-black">
             <h3 className="text-lg font-semibold text-black dark:text-white">
-              {confirmAction === "archive" ? "Archive popup?" : "Delete popup?"}
+              Archive popup?
             </h3>
             <p className="mt-2 text-sm text-black/70 dark:text-white/70">
-              {confirmAction === "archive"
-                ? `This will hide "${confirmPopup.name}" from the default list.`
-                : `This will permanently delete "${confirmPopup.name}" and its versions.`}
+              {`This will hide "${confirmPopup.name}" from the default list.`}
             </p>
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
                 className="rounded border border-black/10 px-4 py-2 text-sm text-black/80 hover:bg-black/[.04] dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
                 type="button"
                 onClick={() => {
-                  setConfirmAction(null);
+                  setConfirmArchive(false);
                   setConfirmPopup(null);
                 }}
               >
@@ -215,16 +192,20 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                 className="rounded bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90 disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-white/90"
                 type="button"
                 disabled={loadingPopupId === confirmPopup.id}
-                onClick={() => runAction(confirmPopup, confirmAction)}
+                onClick={() => runAction(confirmPopup, "archive")}
               >
                 {loadingPopupId === confirmPopup.id
                   ? "Working..."
-                  : confirmAction === "archive"
-                    ? "Archive"
-                    : "Delete"}
+                  : "Archive"}
               </button>
             </div>
           </div>
+        </div>
+      ) : null}
+
+      {toastError ? (
+        <div className="fixed bottom-4 right-4 z-50 rounded-lg bg-red-600 px-4 py-2 text-sm text-white shadow-lg">
+          {toastError}
         </div>
       ) : null}
     </div>

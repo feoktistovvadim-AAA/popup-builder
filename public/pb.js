@@ -173,6 +173,27 @@
         params: { name: name },
       };
     }
+    if (trigger.type === "smart_exit_intent") {
+      var sensitivity = Number(params.sensitivity || trigger.sensitivity || 10);
+      var scrollVelocityThreshold = Number(
+        params.scrollVelocityThreshold || trigger.scrollVelocityThreshold || 800
+      );
+      var topScrollThreshold = Number(
+        params.topScrollThreshold || trigger.topScrollThreshold || 120
+      );
+      return {
+        type: "smart_exit_intent",
+        params: {
+          sensitivity: isValidNumber(sensitivity) ? sensitivity : 10,
+          scrollVelocityThreshold: isValidNumber(scrollVelocityThreshold)
+            ? scrollVelocityThreshold
+            : 800,
+          topScrollThreshold: isValidNumber(topScrollThreshold)
+            ? topScrollThreshold
+            : 120,
+        },
+      };
+    }
 
     return null;
   }
@@ -375,6 +396,119 @@
       };
       debugLog("armed custom_event", { popupId: popupId, name: name });
       return { promise: promiseCustom, cleanup: cleanup };
+    }
+
+    if (trigger.type === "smart_exit_intent") {
+      var resolveSmart;
+      var promiseSmart = new Promise(function (res) {
+        resolveSmart = res;
+      });
+      var sensitivity = trigger.params.sensitivity;
+      var scrollVelocityThreshold = trigger.params.scrollVelocityThreshold;
+      var topScrollThreshold = trigger.params.topScrollThreshold;
+      var device = getDevice();
+      var fired = false;
+
+      // Initialize debug state
+      state.debugInfo.smartExitIntentState = {
+        armed: true,
+        lastScrollVelocity: 0,
+        scrollDirection: null,
+        reason: null,
+      };
+
+      var fireTrigger = function (reason) {
+        if (fired) return;
+        fired = true;
+        state.debugInfo.lastTrigger = "smart_exit_intent";
+        state.debugInfo.smartExitIntentState.reason = reason;
+        debugLog("fired smart_exit_intent", { popupId: popupId, reason: reason, device: device });
+        resolveSmart();
+      };
+
+      if (device === "desktop") {
+        // Desktop: mouseout detection
+        var onMouseOut = function (event) {
+          if (event.clientY <= sensitivity) {
+            fireTrigger("desktop_mouseout");
+          }
+        };
+        document.addEventListener("mouseout", onMouseOut);
+        cleanup = function () {
+          document.removeEventListener("mouseout", onMouseOut);
+        };
+        debugLog("armed smart_exit_intent (desktop)", { popupId: popupId, sensitivity: sensitivity });
+      } else {
+        // Mobile: scroll velocity + visibilitychange detection
+        var lastScrollY = window.scrollY;
+        var lastScrollTime = Date.now();
+        var debounceTimeout = null;
+
+        var onScroll = function () {
+          var now = Date.now();
+          var currentScrollY = window.scrollY;
+          var timeDelta = now - lastScrollTime;
+          var scrollDelta = currentScrollY - lastScrollY;
+
+          if (timeDelta > 0) {
+            var velocity = Math.abs(scrollDelta / timeDelta) * 1000; // px/sec
+            var direction = scrollDelta < 0 ? "up" : "down";
+
+            state.debugInfo.smartExitIntentState.lastScrollVelocity = Math.round(velocity);
+            state.debugInfo.smartExitIntentState.scrollDirection = direction;
+
+            // Check for fast upward scroll near top
+            if (
+              direction === "up" &&
+              velocity >= scrollVelocityThreshold &&
+              currentScrollY <= topScrollThreshold
+            ) {
+              clearTimeout(debounceTimeout);
+              debounceTimeout = setTimeout(function () {
+                fireTrigger("mobile_fast_scroll_up");
+              }, 300);
+            }
+          }
+
+          lastScrollY = currentScrollY;
+          lastScrollTime = now;
+        };
+
+        var onVisibilityChange = function () {
+          if (document.hidden && window.scrollY <= topScrollThreshold) {
+            var activeElement = document.activeElement;
+            var isFormField =
+              activeElement &&
+              (activeElement.tagName === "INPUT" ||
+                activeElement.tagName === "TEXTAREA" ||
+                activeElement.tagName === "SELECT");
+
+            if (!isFormField) {
+              clearTimeout(debounceTimeout);
+              debounceTimeout = setTimeout(function () {
+                fireTrigger("mobile_visibility_change");
+              }, 300);
+            }
+          }
+        };
+
+        window.addEventListener("scroll", onScroll, { passive: true });
+        document.addEventListener("visibilitychange", onVisibilityChange);
+
+        cleanup = function () {
+          clearTimeout(debounceTimeout);
+          window.removeEventListener("scroll", onScroll);
+          document.removeEventListener("visibilitychange", onVisibilityChange);
+        };
+
+        debugLog("armed smart_exit_intent (mobile)", {
+          popupId: popupId,
+          scrollVelocityThreshold: scrollVelocityThreshold,
+          topScrollThreshold: topScrollThreshold,
+        });
+      }
+
+      return { promise: promiseSmart, cleanup: cleanup };
     }
 
     return { promise: new Promise(function () { }), cleanup: cleanup };

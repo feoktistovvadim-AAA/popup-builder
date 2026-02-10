@@ -89,6 +89,18 @@ export type Trigger =
     enabled?: boolean;
     params?: { device: "desktop" | "mobile" };
     device?: "desktop" | "mobile";
+  }
+  | {
+    type: "smart_exit_intent";
+    enabled?: boolean;
+    params?: {
+      sensitivity?: number; // Desktop: pixels from top (default: 10)
+      scrollVelocityThreshold?: number; // Mobile: px/sec (default: 800)
+      topScrollThreshold?: number; // Mobile: max scrollY (default: 120)
+    };
+    sensitivity?: number;
+    scrollVelocityThreshold?: number;
+    topScrollThreshold?: number;
   };
 
 export type TargetingRule =

@@ -153,6 +153,57 @@ test.describe('Popup Triggers', () => {
         await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: custom_event');
     });
 
+    test('should fire smart_exit_intent on desktop (mouseout)', async ({ page }) => {
+        await initPB(page, '?smart_exit=true');
+        const popup = page.locator('text=Smart Exit Popup');
+
+        await expect(popup).not.toBeVisible();
+
+        // Simulate mouseout event at top of viewport
+        await page.evaluate(() => {
+            document.dispatchEvent(new MouseEvent('mouseout', { clientY: 0, bubbles: true }));
+        });
+
+        await expect(popup).toBeVisible();
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: smart_exit_intent');
+    });
+
+    test('should fire smart_exit_intent on mobile (fast scroll up)', async ({ page }) => {
+        // Set mobile viewport
+        await page.setViewportSize({ width: 375, height: 667 });
+        await initPB(page, '?smart_exit=true');
+        const popup = page.locator('text=Smart Exit Popup');
+
+        // Make page scrollable
+        await page.evaluate(() => document.body.style.height = '3000px');
+
+        await expect(popup).not.toBeVisible();
+
+        // Scroll down past threshold
+        await page.evaluate(() => window.scrollTo(0, 200));
+        await page.waitForTimeout(100);
+
+        // Simulate fast upward scroll to top
+        await page.evaluate(() => {
+            // Simulate rapid scroll events going upward
+            window.scrollTo(0, 100);
+            window.dispatchEvent(new Event('scroll'));
+            setTimeout(() => {
+                window.scrollTo(0, 50);
+                window.dispatchEvent(new Event('scroll'));
+            }, 10);
+            setTimeout(() => {
+                window.scrollTo(0, 0);
+                window.dispatchEvent(new Event('scroll'));
+            }, 20);
+        });
+
+        // Wait for debounce + trigger
+        await page.waitForTimeout(500);
+        await expect(popup).toBeVisible();
+        await expect(page.locator('#pb-debug-hud')).toContainText('lastTrigger: smart_exit_intent');
+    });
+
     test('should respect targeting (url_match)', async ({ page }) => {
         // We'll stub the URL in the test environment if possible, 
         // or just rely on the test page URL.
@@ -319,4 +370,3 @@ test.describe('Configuration', () => {
         });
     });
 });
-

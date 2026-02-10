@@ -14,6 +14,7 @@ const triggerOptions: Trigger["type"][] = [
   "after_seconds",
   "scroll_percent",
   "exit_intent_desktop",
+  "smart_exit_intent",
   "custom_event",
   "inactivity",
   "pageview_count",
@@ -814,6 +815,7 @@ export default function InspectorPanel({
                 <input
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
                   type="number"
+                  placeholder="Sensitivity (px from top)"
                   value={getTriggerParam(trigger, "sensitivity", 10)}
                   onChange={(event) => {
                     const next = [...schema.triggers];
@@ -825,6 +827,56 @@ export default function InspectorPanel({
                     onUpdateTriggers(next);
                   }}
                 />
+              ) : null}
+
+              {trigger.type === "smart_exit_intent" ? (
+                <div className="space-y-2">
+                  <input
+                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                    type="number"
+                    placeholder="Desktop sensitivity (px from top)"
+                    value={getTriggerParam(trigger, "sensitivity", 10)}
+                    onChange={(event) => {
+                      const next = [...schema.triggers];
+                      next[index] = setTriggerParam(
+                        trigger,
+                        "sensitivity",
+                        Number(event.target.value)
+                      ) as Trigger;
+                      onUpdateTriggers(next);
+                    }}
+                  />
+                  <input
+                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                    type="number"
+                    placeholder="Mobile scroll velocity (px/s)"
+                    value={getTriggerParam(trigger, "scrollVelocityThreshold", 800)}
+                    onChange={(event) => {
+                      const next = [...schema.triggers];
+                      next[index] = setTriggerParam(
+                        trigger,
+                        "scrollVelocityThreshold",
+                        Number(event.target.value)
+                      ) as Trigger;
+                      onUpdateTriggers(next);
+                    }}
+                  />
+                  <input
+                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                    type="number"
+                    placeholder="Mobile top scroll threshold (px)"
+                    value={getTriggerParam(trigger, "topScrollThreshold", 120)}
+                    onChange={(event) => {
+                      const next = [...schema.triggers];
+                      next[index] = setTriggerParam(
+                        trigger,
+                        "topScrollThreshold",
+                        Number(event.target.value)
+                      ) as Trigger;
+                      onUpdateTriggers(next);
+                    }}
+                  />
+                </div>
               ) : null}
 
               <button

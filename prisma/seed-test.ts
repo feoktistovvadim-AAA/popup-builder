@@ -92,6 +92,21 @@ async function main() {
         blocks: [{ type: 'text', props: { text: 'Custom Event Popup' } }],
     });
 
+    // Smart Exit Intent (desktop + mobile)
+    await createPopup(site.id, 'smart-exit-popup', {
+        targeting: [{ type: 'url_contains', value: 'smart_exit=true' }],
+        triggers: [{
+            type: 'smart_exit_intent',
+            enabled: true,
+            params: {
+                sensitivity: 10,
+                scrollVelocityThreshold: 800,
+                topScrollThreshold: 120
+            }
+        }],
+        blocks: [{ type: 'text', props: { text: 'Smart Exit Popup' } }],
+    });
+
     // Race Condition Popup (Timer 1s + Scroll 0% - both should try to fire)
     await createPopup(site.id, 'race-popup', {
         targeting: [{ type: 'url_contains', value: 'race=true' }],

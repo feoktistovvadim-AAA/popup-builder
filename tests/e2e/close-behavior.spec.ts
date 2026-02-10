@@ -175,7 +175,6 @@ test.describe('Event Tracking', () => {
 
     test('should emit click event when button is clicked', async ({ page }) => {
         const events: any[] = [];
-        let clickEventPromise: Promise<any> | null = null;
 
         await page.route('**/api/v1/event', route => {
             const postData = route.request().postDataJSON();
@@ -183,24 +182,13 @@ test.describe('Event Tracking', () => {
             route.fulfill({ status: 200, body: '{}' });
         });
 
-        await initPB(page, '?timer=true');
-        await page.waitForTimeout(2500);
+        await initPB(page, '?click=true');
 
-        // Check if button exists
-        const hasButton = await page.evaluate(() => {
-            const root = document.querySelector('#pb-root');
-            if (!root || !root.shadowRoot) return false;
-            return !!root.shadowRoot.querySelector('.pb-button');
-        });
-
-        // Skip test if no button exists in this popup
-        if (!hasButton) {
-            test.skip();
-            return;
-        }
+        // Wait for popup to appear (1 second trigger + buffer)
+        await page.waitForTimeout(1500);
 
         // Wait for click event request
-        clickEventPromise = page.waitForRequest(
+        const clickEventPromise = page.waitForRequest(
             req => req.url().includes('/api/v1/event') &&
                 req.method() === 'POST' &&
                 req.postDataJSON()?.eventType === 'click',
@@ -219,10 +207,13 @@ test.describe('Event Tracking', () => {
         // Wait for the click event request
         await clickEventPromise;
 
-        // Verify click event was sent
+        // Verify click event was sent with correct payload
         const clickEvent = events.find(e => e.eventType === 'click');
         expect(clickEvent).toBeDefined();
-        expect(clickEvent.buttonLabel).toBeDefined();
-        expect(clickEvent.buttonUrl).toBeDefined();
+        expect(clickEvent.buttonLabel).toBe('Test CTA');
+        // Browser may add trailing slash
+        expect(clickEvent.buttonUrl).toMatch(/^https:\/\/example\.com\/?$/);
+        expect(clickEvent.siteId).toBe(siteId);
+        expect(clickEvent.deviceType).toBeDefined();
     });
 });

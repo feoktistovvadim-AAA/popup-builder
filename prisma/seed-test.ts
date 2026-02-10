@@ -107,6 +107,25 @@ async function main() {
         blocks: [{ type: 'text', props: { text: 'Smart Exit Popup' } }],
     });
 
+    // Click Event Test Popup (with button)
+    await createPopup(site.id, 'click-popup', {
+        targeting: [{ type: 'url_contains', value: 'click=true' }],
+        triggers: [{ type: 'after_seconds', enabled: true, params: { seconds: 1 } }],
+        blocks: [
+            { type: 'text', props: { text: 'Click Test Popup' } },
+            {
+                type: 'button',
+                props: {
+                    label: 'Test CTA',
+                    url: 'https://example.com',
+                    backgroundColor: '#7c3aed',
+                    textColor: '#ffffff',
+                    fullWidth: true
+                }
+            }
+        ],
+    });
+
     // Race Condition Popup (Timer 1s + Scroll 0% - both should try to fire)
     await createPopup(site.id, 'race-popup', {
         targeting: [{ type: 'url_contains', value: 'race=true' }],

@@ -18,22 +18,24 @@ export default async function PopupBuilderPage({
     notFound();
   }
 
-  const popup = await prisma.popup.findFirst({
+  const popup = await prisma.popup.findUnique({
     where: {
       id: params.popupId,
-      site: { organizationId },
     },
     include: {
       site: true,
-      versions: { orderBy: { createdAt: "desc" }, take: 1 },
     },
   });
 
-  if (!popup) {
+  if (!popup || popup.site.organizationId !== organizationId) {
     notFound();
   }
 
-  let version = popup.versions[0];
+  let version = await prisma.popupVersion.findFirst({
+    where: { popupId: popup.id },
+    orderBy: { version: "desc" },
+  });
+
   if (!version) {
     version = await prisma.popupVersion.create({
       data: {
@@ -48,6 +50,7 @@ export default async function PopupBuilderPage({
     <PopupBuilder
       popupId={popup.id}
       popupName={popup.name}
+      popupStatus={popup.status}
       versionId={version.id}
       initialSchema={version.schema}
     />

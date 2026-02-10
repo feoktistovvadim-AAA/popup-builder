@@ -17,6 +17,7 @@ import {
 type PopupBuilderProps = {
   popupId: string;
   popupName: string;
+  popupStatus: "DRAFT" | "PUBLISHED" | "ARCHIVED";
   versionId: string;
   initialSchema: unknown;
 };
@@ -82,6 +83,7 @@ function createBlock(type: BlockType): PopupBlock {
 export default function PopupBuilder({
   popupId,
   popupName,
+  popupStatus,
   versionId,
   initialSchema,
 }: PopupBuilderProps) {
@@ -189,6 +191,9 @@ export default function PopupBuilder({
           </h1>
           <p className="text-sm text-black/60 dark:text-white/60">
             Version {versionId.slice(0, 6)}
+          </p>
+          <p className="text-xs text-black/50 dark:text-white/50">
+            Popup: {popupName} (id: {popupId}) status: {popupStatus}
           </p>
         </div>
         <div className="flex items-center gap-3">

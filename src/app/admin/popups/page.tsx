@@ -1,5 +1,4 @@
 import CreatePopupForm from "@/components/admin/CreatePopupForm";
-import CreatePopupFromPresetModal from "@/components/admin/CreatePopupFromPresetModal";
 import PopupList from "@/components/admin/PopupList";
 import { getOrgContext } from "@/lib/org";
 import { prisma } from "@/lib/prisma";
@@ -63,7 +62,6 @@ export default async function AdminPopupsPage() {
         ) : (
           <div className="mt-4 space-y-4">
             <CreatePopupForm sites={sites} />
-            <CreatePopupFromPresetModal sites={sites} />
           </div>
         )}
       </div>

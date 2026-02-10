@@ -36,6 +36,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const requestPath = new URL(request.url).pathname;
   const { session, response } = await requireSession();
   if (response) return response;
 
@@ -82,6 +83,15 @@ export async function POST(request: Request) {
     });
 
     return created;
+  });
+
+  console.log("[create-popup]", {
+    orgId: session.user.organizationId,
+    userId: session.user.id,
+    popupId: popup.id,
+    name: popup.name,
+    siteId: popup.siteId,
+    path: requestPath,
   });
 
   return NextResponse.json({ popup }, { status: 201 });

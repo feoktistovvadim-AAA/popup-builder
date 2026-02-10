@@ -123,24 +123,43 @@ export default function PreviewCanvas({
 }) {
   const layout = schema.template.layout;
   const containerStyle: CSSProperties = {
-    maxWidth: layout.maxWidth,
-    padding: layout.padding,
-    borderRadius: layout.borderRadius,
-    backgroundColor: layout.backgroundColor,
+    maxWidth: layout.maxWidthDesktop ?? 420,
+    width: "100%",
+    padding: layout.paddingDesktop ?? 24,
+    borderRadius: layout.borderRadius ?? 16,
+    backgroundColor: layout.backgroundColor ?? "#0b0b0f",
+    boxShadow:
+      layout.shadow === "none"
+        ? "none"
+        : layout.shadow === "soft"
+          ? "0 4px 12px rgba(0,0,0,0.1)" // soft
+          : layout.shadow === "strong"
+            ? "0 25px 80px rgba(0,0,0,0.5)" // strong
+            : "0 20px 60px rgba(0,0,0,0.35)", // medium (default)
+    border: layout.borderEnabled
+      ? `${layout.borderWidth ?? 1}px solid ${layout.borderColor ?? "#fff"}`
+      : "none",
   };
 
   return (
     <div className="flex h-full min-h-[480px] items-center justify-center rounded-lg border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-black">
       <div
-        className="relative flex w-full items-center justify-center rounded-lg p-8"
-        style={{ backgroundColor: layout.overlayColor }}
+        className="relative flex w-full h-full items-center justify-center rounded-lg p-8 transition-all"
+        style={{
+          backgroundColor: layout.overlayColor ?? "rgba(0,0,0,0.6)",
+          backdropFilter: layout.overlayBlur ? `blur(${layout.overlayBlur}px)` : "none",
+        }}
       >
         <div
           className={clsx(
-            "w-full",
-            layout.position === "center" && "mx-auto",
-            layout.position === "bottom" && "mt-auto",
-            layout.position === "side" && "mr-auto"
+            "relative transition-all",
+            layout.position === "center" && "mx-auto my-auto",
+            layout.position === "top-left" && "mr-auto mb-auto",
+            layout.position === "top-center" && "mx-auto mb-auto",
+            layout.position === "top-right" && "ml-auto mb-auto",
+            layout.position === "bottom-left" && "mr-auto mt-auto",
+            layout.position === "bottom-center" && "mx-auto mt-auto",
+            layout.position === "bottom-right" && "ml-auto mt-auto"
           )}
           style={containerStyle}
         >

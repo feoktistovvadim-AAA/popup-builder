@@ -40,7 +40,91 @@ export type LayoutSettings = {
   showClose: boolean;
 };
 
-// ... Triggers ...
+export type Trigger =
+  | {
+    type: "after_seconds";
+    enabled?: boolean;
+    params?: { seconds: number };
+    seconds?: number;
+  }
+  | {
+    type: "scroll_percent";
+    enabled?: boolean;
+    params?: { percent: number };
+    percent?: number;
+  }
+  | {
+    type: "exit_intent_desktop";
+    enabled?: boolean;
+    params?: { sensitivity?: number };
+    sensitivity?: number;
+  }
+  | {
+    type: "custom_event";
+    enabled?: boolean;
+    params?: { name: string };
+    eventName?: string;
+  }
+  | {
+    type: "inactivity";
+    enabled?: boolean;
+    params?: { seconds: number };
+    seconds?: number;
+  }
+  | {
+    type: "pageview_count";
+    enabled?: boolean;
+    params?: { count: number };
+    count?: number;
+  }
+  | {
+    type: "url_match";
+    enabled?: boolean;
+    params?: { pattern: string; match?: "contains" | "equals" | "regex" };
+    pattern?: string;
+    match?: "contains" | "equals" | "regex";
+  }
+  | {
+    type: "device_is";
+    enabled?: boolean;
+    params?: { device: "desktop" | "mobile" };
+    device?: "desktop" | "mobile";
+  };
+
+export type TargetingRule =
+  | { type: "vip_level_is"; value: string }
+  | { type: "balance_lt"; amount: number }
+  | { type: "device_is"; device: "desktop" | "mobile" }
+  | { type: "url_contains"; value: string }
+  | { type: "new_vs_returning"; value: "new" | "returning" }
+  | { type: "sessions_count"; count: number }
+  | { type: "referrer_contains"; value: string };
+
+export type FrequencyConfig = {
+  maxPerSession: number | null;
+  maxPer24h: number | null;
+  cooldownAfterCloseHours: number | null;
+  showOnce: boolean;
+  perCampaign: boolean;
+};
+
+export type PopupSchemaV2 = {
+  schemaVersion: 2;
+  blocks: PopupBlock[];
+  template: {
+    layout: LayoutSettings;
+  };
+  triggers: Trigger[];
+  triggersMode?: "any" | "all";
+  frequency: FrequencyConfig;
+  targeting: TargetingRule[];
+};
+
+export type PresetKey =
+  | "welcome"
+  | "vip"
+  | "deposit_failed"
+  | "responsible_gaming";
 
 const baseLayout: LayoutSettings = {
   maxWidthDesktop: 420,

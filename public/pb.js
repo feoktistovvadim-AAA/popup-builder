@@ -564,37 +564,82 @@
     var shadow = host.attachShadow({ mode: "open" });
 
     var layout = schema.template.layout || {};
+    var device = getDevice();
+    var maxWidth = device === "mobile" ? (layout.maxWidthMobile || 340) : (layout.maxWidthDesktop || 420);
+    var padding = device === "mobile" ? (layout.paddingMobile || 16) : (layout.paddingDesktop || 24);
+
+    var shadowStyle = "0 20px 60px rgba(0,0,0,0.35)";
+    if (layout.shadow === "none") shadowStyle = "none";
+    else if (layout.shadow === "soft") shadowStyle = "0 4px 12px rgba(0,0,0,0.1)";
+    else if (layout.shadow === "strong") shadowStyle = "0 25px 80px rgba(0,0,0,0.5)";
+
+    var borderStyle = "none";
+    if (layout.borderEnabled) {
+      borderStyle = (layout.borderWidth || 1) + "px solid " + (layout.borderColor || "#ffffff");
+    }
+
     var wrapper = document.createElement("div");
     wrapper.innerHTML =
       '<style>' +
       "* { box-sizing: border-box; }" +
       ".pb-overlay{position:fixed;inset:0;background:" +
       (layout.overlayColor || "rgba(0,0,0,0.6)") +
-      ";display:flex;align-items:center;justify-content:center;z-index:2147483647;}" +
+      ";" +
+      (layout.overlayBlur ? "backdrop-filter:blur(" + layout.overlayBlur + "px);" : "") +
+      "display:flex;align-items:center;justify-content:center;z-index:2147483647;}" +
       ".pb-modal{font-family:Inter,system-ui,sans-serif;max-width:" +
-      (layout.maxWidth || 420) +
+      maxWidth +
       "px;padding:" +
-      (layout.padding || 24) +
+      padding +
       "px;border-radius:" +
       (layout.borderRadius || 16) +
       "px;background:" +
       (layout.backgroundColor || "#0f172a") +
-      ";color:white;box-shadow:0 20px 60px rgba(0,0,0,0.35);}" +
+      ";color:white;box-shadow:" +
+      shadowStyle +
+      ";border:" +
+      borderStyle +
+      ";}" +
       ".pb-close{position:absolute;right:16px;top:16px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.15);color:white;border:0;cursor:pointer;}" +
       ".pb-stack{display:flex;flex-direction:column;gap:16px;}" +
-      ".pb-button{display:block;width:100%;text-align:center;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;}" +
+      ".pb-button{display:block;text-align:center;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:none;}" +
       "</style>" +
       '<div class="pb-overlay">' +
       '<div class="pb-modal"><div class="pb-stack"></div></div>' +
       "</div>";
 
     shadow.appendChild(wrapper);
+    var overlay = wrapper.querySelector(".pb-overlay");
     var modal = shadow.querySelector(".pb-modal");
-    if (layout.position === "bottom") {
-      wrapper.querySelector(".pb-overlay").style.alignItems = "flex-end";
+
+    var position = layout.position || "center";
+    if (position === "top-left") {
+      overlay.style.alignItems = "flex-start";
+      overlay.style.justifyContent = "flex-start";
+      modal.style.margin = "32px";
+    } else if (position === "top-center") {
+      overlay.style.alignItems = "flex-start";
+      overlay.style.justifyContent = "center";
+      modal.style.marginTop = "32px";
+    } else if (position === "top-right") {
+      overlay.style.alignItems = "flex-start";
+      overlay.style.justifyContent = "flex-end";
+      modal.style.margin = "32px";
+    } else if (position === "bottom-left") {
+      overlay.style.alignItems = "flex-end";
+      overlay.style.justifyContent = "flex-start";
+      modal.style.margin = "32px";
+    } else if (position === "bottom-center" || position === "bottom") {
+      overlay.style.alignItems = "flex-end";
+      overlay.style.justifyContent = "center";
       modal.style.marginBottom = "32px";
-    } else if (layout.position === "side") {
-      wrapper.querySelector(".pb-overlay").style.justifyContent = "flex-end";
+    } else if (position === "bottom-right") {
+      overlay.style.alignItems = "flex-end";
+      overlay.style.justifyContent = "flex-end";
+      modal.style.margin = "32px";
+    } else if (position === "side") {
+      overlay.style.alignItems = "center";
+      overlay.style.justifyContent = "flex-end";
       modal.style.marginRight = "32px";
     }
 
@@ -640,6 +685,12 @@
         a.style.background = block.props.backgroundColor || "#7c3aed";
         a.style.color = block.props.textColor || "#ffffff";
         a.style.borderRadius = (block.props.borderRadius || 10) + "px";
+        a.style.fontSize = (block.props.fontSize || 16) + "px";
+        a.style.width = block.props.fullWidth ? "100%" : "auto";
+        a.style.display = block.props.fullWidth ? "block" : "inline-block";
+        if (block.props.borderEnabled) {
+          a.style.border = (block.props.borderWidth || 1) + "px solid " + (block.props.borderColor || "#ffffff");
+        }
         a.addEventListener("click", function () {
           sendEvent(popup, "click", { url: a.href });
         });

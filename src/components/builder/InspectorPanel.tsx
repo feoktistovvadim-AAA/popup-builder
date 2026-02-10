@@ -112,35 +112,75 @@ export default function InspectorPanel({
             {showJson ? "Hide JSON" : "Show JSON"}
           </button>
         </div>
+        <div className="mt-3 space-y-3 text-xs text-black/60 dark:text-white/60">
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-1">
+              Padding (Desktop)
+              <input
+                className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                type="number"
+                value={layout.paddingDesktop ?? 24}
+                onChange={(event) =>
+                  onUpdateLayout({
+                    ...layout,
+                    paddingDesktop: Number(event.target.value),
+                  })
+                }
+              />
+            </label>
+            <label className="space-y-1">
+              Padding (Mobile)
+              <input
+                className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                type="number"
+                value={layout.paddingMobile ?? 16}
+                onChange={(event) =>
+                  onUpdateLayout({
+                    ...layout,
+                    paddingMobile: Number(event.target.value),
+                  })
+                }
+              />
+            </label>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <label className="space-y-1">
+              Max Width (Desktop)
+              <input
+                className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                type="number"
+                value={layout.maxWidthDesktop ?? 420}
+                onChange={(event) =>
+                  onUpdateLayout({
+                    ...layout,
+                    maxWidthDesktop: Number(event.target.value),
+                  })
+                }
+              />
+            </label>
+            <label className="space-y-1">
+              Max Width (Mobile)
+              <input
+                className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                type="number"
+                value={layout.maxWidthMobile ?? 340}
+                onChange={(event) =>
+                  onUpdateLayout({
+                    ...layout,
+                    maxWidthMobile: Number(event.target.value),
+                  })
+                }
+              />
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-black">
+        <h3 className="text-sm font-semibold text-black dark:text-white">
+          Style & Position
+        </h3>
         <div className="mt-3 grid grid-cols-2 gap-3 text-xs text-black/60 dark:text-white/60">
-          <label className="space-y-1">
-            Padding
-            <input
-              className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-              type="number"
-              value={layout.padding}
-              onChange={(event) =>
-                onUpdateLayout({
-                  ...layout,
-                  padding: Number(event.target.value),
-                })
-              }
-            />
-          </label>
-          <label className="space-y-1">
-            Max width
-            <input
-              className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-              type="number"
-              value={layout.maxWidth}
-              onChange={(event) =>
-                onUpdateLayout({
-                  ...layout,
-                  maxWidth: Number(event.target.value),
-                })
-              }
-            />
-          </label>
           <label className="space-y-1">
             Radius
             <input
@@ -154,6 +194,24 @@ export default function InspectorPanel({
                 })
               }
             />
+          </label>
+          <label className="space-y-1">
+            Shadow
+            <select
+              className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+              value={layout.shadow ?? "medium"}
+              onChange={(event) =>
+                onUpdateLayout({
+                  ...layout,
+                  shadow: event.target.value as typeof layout.shadow,
+                })
+              }
+            >
+              <option value="none">None</option>
+              <option value="soft">Soft</option>
+              <option value="medium">Medium</option>
+              <option value="strong">Strong</option>
+            </select>
           </label>
           <label className="space-y-1">
             Background
@@ -170,7 +228,7 @@ export default function InspectorPanel({
             />
           </label>
           <label className="space-y-1">
-            Overlay
+            Overlay Color
             <input
               className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
               type="text"
@@ -179,6 +237,20 @@ export default function InspectorPanel({
                 onUpdateLayout({
                   ...layout,
                   overlayColor: event.target.value,
+                })
+              }
+            />
+          </label>
+          <label className="space-y-1">
+            Overlay Blur (px)
+            <input
+              className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+              type="number"
+              value={layout.overlayBlur ?? 0}
+              onChange={(event) =>
+                onUpdateLayout({
+                  ...layout,
+                  overlayBlur: Number(event.target.value),
                 })
               }
             />
@@ -196,37 +268,86 @@ export default function InspectorPanel({
               }
             >
               <option value="center">Center</option>
-              <option value="bottom">Bottom</option>
-              <option value="side">Side</option>
+              <option value="top-left">Top Left</option>
+              <option value="top-center">Top Center</option>
+              <option value="top-right">Top Right</option>
+              <option value="bottom-left">Bottom Left</option>
+              <option value="bottom-center">Bottom Center</option>
+              <option value="bottom-right">Bottom Right</option>
             </select>
-          </label>
-          <label className="space-y-1">
-            Animation
-            <select
-              className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-              value={layout.animation}
-              onChange={(event) =>
-                onUpdateLayout({
-                  ...layout,
-                  animation: event.target.value as typeof layout.animation,
-                })
-              }
-            >
-              <option value="fade">Fade</option>
-              <option value="slide">Slide</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-2 text-sm text-black/70 dark:text-white/70">
-            <input
-              type="checkbox"
-              checked={layout.showClose}
-              onChange={(event) =>
-                onUpdateLayout({ ...layout, showClose: event.target.checked })
-              }
-            />
-            Show close button
           </label>
         </div>
+
+        <div className="mt-3 space-y-2 text-xs text-black/60 dark:text-white/60">
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={layout.borderEnabled ?? false}
+              onChange={(event) =>
+                onUpdateLayout({ ...layout, borderEnabled: event.target.checked })
+              }
+            />
+            Enable Border
+          </label>
+          {layout.borderEnabled && (
+            <div className="grid grid-cols-2 gap-3 pl-5">
+              <label className="space-y-1">
+                Width
+                <input
+                  className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                  type="number"
+                  value={layout.borderWidth ?? 1}
+                  onChange={(event) =>
+                    onUpdateLayout({
+                      ...layout,
+                      borderWidth: Number(event.target.value),
+                    })
+                  }
+                />
+              </label>
+              <label className="space-y-1">
+                Color
+                <input
+                  className="h-8 w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                  type="color"
+                  value={layout.borderColor ?? "#ffffff"}
+                  onChange={(event) =>
+                    onUpdateLayout({
+                      ...layout,
+                      borderColor: event.target.value,
+                    })
+                  }
+                />
+              </label>
+            </div>
+          )}
+        </div>
+        <label className="space-y-1">
+          Animation
+          <select
+            className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+            value={layout.animation}
+            onChange={(event) =>
+              onUpdateLayout({
+                ...layout,
+                animation: event.target.value as typeof layout.animation,
+              })
+            }
+          >
+            <option value="fade">Fade</option>
+            <option value="slide">Slide</option>
+          </select>
+        </label>
+        <label className="flex items-center gap-2 text-sm text-black/70 dark:text-white/70">
+          <input
+            type="checkbox"
+            checked={layout.showClose}
+            onChange={(event) =>
+              onUpdateLayout({ ...layout, showClose: event.target.checked })
+            }
+          />
+          Show close button
+        </label>
       </div>
 
       <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-black">
@@ -240,7 +361,7 @@ export default function InspectorPanel({
         ) : (
           <div className="mt-3 space-y-3 text-xs text-black/70 dark:text-white/70">
             {selectedBlock.type === "headline" ||
-            selectedBlock.type === "text" ? (
+              selectedBlock.type === "text" ? (
               <>
                 <label className="space-y-1">
                   Text
@@ -294,74 +415,161 @@ export default function InspectorPanel({
 
             {selectedBlock.type === "button" ? (
               <>
-                <label className="space-y-1">
-                  Label
-                  <input
-                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                    value={(selectedBlock.props.label as string) ?? ""}
-                    onChange={(event) =>
-                      onUpdateBlock(selectedBlock.id, {
-                        ...selectedBlock.props,
-                        label: event.target.value,
-                      })
-                    }
-                  />
-                </label>
-                <label className="space-y-1">
-                  URL
-                  <input
-                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                    value={(selectedBlock.props.url as string) ?? ""}
-                    onChange={(event) =>
-                      onUpdateBlock(selectedBlock.id, {
-                        ...selectedBlock.props,
-                        url: event.target.value,
-                      })
-                    }
-                  />
-                </label>
-                <label className="space-y-1">
-                  Background
-                  <input
-                    className="h-8 w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                    type="color"
-                    value={(selectedBlock.props.backgroundColor as string) ?? "#7c3aed"}
-                    onChange={(event) =>
-                      onUpdateBlock(selectedBlock.id, {
-                        ...selectedBlock.props,
-                        backgroundColor: event.target.value,
-                      })
-                    }
-                  />
-                </label>
-                <label className="space-y-1">
-                  Text color
-                  <input
-                    className="h-8 w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                    type="color"
-                    value={(selectedBlock.props.textColor as string) ?? "#ffffff"}
-                    onChange={(event) =>
-                      onUpdateBlock(selectedBlock.id, {
-                        ...selectedBlock.props,
-                        textColor: event.target.value,
-                      })
-                    }
-                  />
-                </label>
-                <label className="space-y-1">
-                  Radius
-                  <input
-                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                    type="number"
-                    value={(selectedBlock.props.borderRadius as number) ?? 10}
-                    onChange={(event) =>
-                      onUpdateBlock(selectedBlock.id, {
-                        ...selectedBlock.props,
-                        borderRadius: Number(event.target.value),
-                      })
-                    }
-                  />
-                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="space-y-1">
+                    Label
+                    <input
+                      className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                      value={(selectedBlock.props.label as string) ?? ""}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          label: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    URL
+                    <input
+                      className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                      value={(selectedBlock.props.url as string) ?? ""}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          url: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="space-y-1">
+                    Text color
+                    <input
+                      className="h-8 w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                      type="color"
+                      value={(selectedBlock.props.textColor as string) ?? "#ffffff"}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          textColor: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    Background
+                    <input
+                      className="h-8 w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                      type="color"
+                      value={
+                        (selectedBlock.props.backgroundColor as string) ?? "#7c3aed"
+                      }
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          backgroundColor: event.target.value,
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="space-y-1">
+                    Font Size (px)
+                    <input
+                      className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                      type="number"
+                      value={(selectedBlock.props.fontSize as number) ?? 16}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          fontSize: Number(event.target.value),
+                        })
+                      }
+                    />
+                  </label>
+                  <label className="space-y-1">
+                    Radius
+                    <input
+                      className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                      type="number"
+                      value={(selectedBlock.props.borderRadius as number) ?? 10}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          borderRadius: Number(event.target.value),
+                        })
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={(selectedBlock.props.fullWidth as boolean) ?? false}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          fullWidth: event.target.checked,
+                        })
+                      }
+                    />
+                    Full Width
+                  </label>
+
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={(selectedBlock.props.borderEnabled as boolean) ?? false}
+                      onChange={(event) =>
+                        onUpdateBlock(selectedBlock.id, {
+                          ...selectedBlock.props,
+                          borderEnabled: event.target.checked,
+                        })
+                      }
+                    />
+                    Enable Border
+                  </label>
+
+                  {(selectedBlock.props.borderEnabled as boolean) && (
+                    <div className="grid grid-cols-2 gap-3 pl-5">
+                      <label className="space-y-1">
+                        Width
+                        <input
+                          className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                          type="number"
+                          value={(selectedBlock.props.borderWidth as number) ?? 1}
+                          onChange={(event) =>
+                            onUpdateBlock(selectedBlock.id, {
+                              ...selectedBlock.props,
+                              borderWidth: Number(event.target.value),
+                            })
+                          }
+                        />
+                      </label>
+                      <label className="space-y-1">
+                        Color
+                        <input
+                          className="h-8 w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                          type="color"
+                          value={(selectedBlock.props.borderColor as string) ?? "#ffffff"}
+                          onChange={(event) =>
+                            onUpdateBlock(selectedBlock.id, {
+                              ...selectedBlock.props,
+                              borderColor: event.target.value,
+                            })
+                          }
+                        />
+                      </label>
+                    </div>
+                  )}
+                </div>
               </>
             ) : null}
 
@@ -481,7 +689,7 @@ export default function InspectorPanel({
               </select>
 
               {trigger.type === "after_seconds" ||
-              trigger.type === "inactivity" ? (
+                trigger.type === "inactivity" ? (
                 <input
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
                   type="number"
@@ -837,6 +1045,6 @@ export default function InspectorPanel({
           </label>
         </div>
       </div>
-    </div>
+    </div >
   );
 }

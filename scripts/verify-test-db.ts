@@ -16,8 +16,20 @@ async function main() {
     try {
         const count = await prisma.site.count();
         console.log(`✅ Connection successful. Found ${count} sites.`);
-        const site = await prisma.site.findFirst();
-        console.log('Site:', site);
+
+        const popup = await prisma.popup.findFirst({
+            where: { name: 'race-popup' },
+            include: { versions: true }
+        });
+
+        if (popup) {
+            console.log('Race Popup Found:', JSON.stringify(popup, null, 2));
+            const version = popup.versions[0];
+            console.log('Schema Targeting:', JSON.stringify((version.schema as any)?.targeting, null, 2));
+        } else {
+            console.log('Race Popup NOT FOUND');
+        }
+
     } catch (e) {
         console.error('❌ Connection failed:', e);
         process.exit(1);

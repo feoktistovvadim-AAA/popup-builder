@@ -33,30 +33,35 @@ async function main() {
 
     // Timer Popup (2 seconds)
     await createPopup(site.id, 'timer-popup', {
+        targeting: [{ type: 'url_contains', value: 'timer=true' }],
         triggers: [{ type: 'after_seconds', enabled: true, params: { seconds: 2 } }],
         blocks: [{ type: 'text', props: { text: 'Timer Popup' } }],
     });
 
     // Scroll Popup (50%)
     await createPopup(site.id, 'scroll-popup', {
+        targeting: [{ type: 'url_contains', value: 'scroll=true' }],
         triggers: [{ type: 'scroll_percent', enabled: true, params: { percent: 50 } }],
         blocks: [{ type: 'text', props: { text: 'Scroll Popup' } }],
     });
 
     // Exit Intent
     await createPopup(site.id, 'exit-popup', {
+        targeting: [{ type: 'url_contains', value: 'exit=true' }],
         triggers: [{ type: 'exit_intent_desktop', enabled: true, params: { sensitivity: 10 } }],
         blocks: [{ type: 'text', props: { text: 'Exit Popup' } }],
     });
 
     // Inactivity (3 seconds)
     await createPopup(site.id, 'inactivity-popup', {
+        targeting: [{ type: 'url_contains', value: 'inactivity=true' }],
         triggers: [{ type: 'inactivity', enabled: true, params: { seconds: 3 } }],
         blocks: [{ type: 'text', props: { text: 'Inactivity Popup' } }],
     });
 
     // Pageview Count (3rd view)
     await createPopup(site.id, 'pageview-popup', {
+        targeting: [{ type: 'url_contains', value: 'pageview=true' }],
         triggers: [{ type: 'pageview_count', enabled: true, params: { count: 3 } }],
         blocks: [{ type: 'text', props: { text: 'Pageview Popup' } }],
     });
@@ -69,6 +74,7 @@ async function main() {
 
     // Device Match (desktop)
     await createPopup(site.id, 'device-popup', {
+        targeting: [{ type: 'url_contains', value: 'device=desktop' }],
         triggers: [{ type: 'device_is', enabled: true, params: { device: 'desktop' } }],
         blocks: [{ type: 'text', props: { text: 'Device Popup' } }],
     });
@@ -81,8 +87,19 @@ async function main() {
 
     // Custom Event (deposit_failed)
     await createPopup(site.id, 'custom-popup', {
+        targeting: [{ type: 'url_contains', value: 'custom=true' }],
         triggers: [{ type: 'custom_event', enabled: true, params: { name: 'deposit_failed' } }],
         blocks: [{ type: 'text', props: { text: 'Custom Event Popup' } }],
+    });
+
+    // Race Condition Popup (Timer 1s + Scroll 0% - both should try to fire)
+    await createPopup(site.id, 'race-popup', {
+        targeting: [{ type: 'url_contains', value: 'race=true' }],
+        triggers: [
+            { type: 'after_seconds', enabled: true, params: { seconds: 1 } },
+            { type: 'scroll_percent', enabled: true, params: { percent: 0 } }
+        ],
+        blocks: [{ type: 'text', props: { text: 'Race Popup' } }],
     });
 
     console.log('✅ Seeding complete');

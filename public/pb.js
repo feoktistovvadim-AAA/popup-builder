@@ -184,7 +184,7 @@
   }
 
   function createTriggerPromise(trigger, popupId) {
-    var cleanup = function () {};
+    var cleanup = function () { };
 
     if (trigger.type === "after_seconds") {
       var timeout = setTimeout(function () {
@@ -235,7 +235,7 @@
       });
       if (getDevice() !== "desktop") {
         debugLog("skip exit_intent_desktop on mobile", { popupId: popupId });
-        return { promise: new Promise(function () {}), cleanup: cleanup };
+        return { promise: new Promise(function () { }), cleanup: cleanup };
       }
       var sensitivity = trigger.params.sensitivity;
       var onMouseOut = function (event) {
@@ -296,7 +296,7 @@
           cleanup: cleanup,
         };
       }
-      return { promise: new Promise(function () {}), cleanup: cleanup };
+      return { promise: new Promise(function () { }), cleanup: cleanup };
     }
 
     if (trigger.type === "url_match") {
@@ -304,7 +304,7 @@
       var matchType = trigger.params.match || "contains";
       if (!pattern) {
         debugLog("invalid url_match missing pattern", { popupId: popupId });
-        return { promise: new Promise(function () {}), cleanup: cleanup };
+        return { promise: new Promise(function () { }), cleanup: cleanup };
       }
       var href = window.location.href;
       var haystack = href.toLowerCase();
@@ -332,7 +332,7 @@
         state.debugInfo.lastTrigger = "url_match";
         return { promise: Promise.resolve(), cleanup: cleanup };
       }
-      return { promise: new Promise(function () {}), cleanup: cleanup };
+      return { promise: new Promise(function () { }), cleanup: cleanup };
     }
 
     if (trigger.type === "device_is") {
@@ -343,7 +343,7 @@
         state.debugInfo.lastTrigger = "device_is";
         return { promise: Promise.resolve(), cleanup: cleanup };
       }
-      return { promise: new Promise(function () {}), cleanup: cleanup };
+      return { promise: new Promise(function () { }), cleanup: cleanup };
     }
 
     if (trigger.type === "custom_event") {
@@ -354,7 +354,7 @@
       var name = trigger.params.name;
       if (!name) {
         debugLog("invalid custom_event missing name", { popupId: popupId });
-        return { promise: new Promise(function () {}), cleanup: cleanup };
+        return { promise: new Promise(function () { }), cleanup: cleanup };
       }
       var handler = function (event) {
         state.debugInfo.lastTrigger = "custom_event";
@@ -371,7 +371,7 @@
       return { promise: promiseCustom, cleanup: cleanup };
     }
 
-    return { promise: new Promise(function () {}), cleanup: cleanup };
+    return { promise: new Promise(function () { }), cleanup: cleanup };
   }
 
   function runTriggers(triggers, mode, popupId) {
@@ -460,7 +460,7 @@
     var data = {};
     try {
       data = JSON.parse(localStorage.getItem(key) || "{}");
-    } catch {}
+    } catch { }
 
     var now = Date.now();
     if (frequency.showOnce && data.shown) {
@@ -499,7 +499,7 @@
     var data = {};
     try {
       data = JSON.parse(localStorage.getItem(key) || "{}");
-    } catch {}
+    } catch { }
     data.shown = (data.shown || 0) + 1;
     data.lastShown = now;
     var dayKey = new Date().toISOString().slice(0, 10);
@@ -524,7 +524,7 @@
     var data = {};
     try {
       data = JSON.parse(localStorage.getItem(key) || "{}");
-    } catch {}
+    } catch { }
     data.lastClosed = Date.now();
     localStorage.setItem(key, JSON.stringify(data));
   }
@@ -547,6 +547,10 @@
   }
 
   function renderPopup(popup) {
+    if (document.getElementById("pb-root")) {
+      debugLog("block renderPopup: already exists", { popupId: popup.popupId });
+      return;
+    }
     var schema = popup.schema;
     var host = document.createElement("div");
     host.id = "pb-root";
@@ -763,6 +767,10 @@
           apiBase +
           "/api/v1/boot?siteId=" +
           encodeURIComponent(state.siteId);
+
+        if (state.debug) {
+          url += "&_t=" + new Date().getTime();
+        }
 
         getJson(url)
           .then(handleBoot)

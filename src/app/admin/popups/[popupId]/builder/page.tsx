@@ -9,8 +9,14 @@ import { prisma } from "@/lib/prisma";
 export default async function PopupBuilderPage({
   params,
 }: {
-  params: { popupId: string };
+  params: { popupId: string } | Promise<{ popupId: string }>;
 }) {
+  const resolvedParams = await params;
+  const popupId = resolvedParams?.popupId;
+  if (!popupId) {
+    notFound();
+  }
+
   const context = await getOrgContext();
   const organizationId = context.organizationId;
 
@@ -20,7 +26,7 @@ export default async function PopupBuilderPage({
 
   const popup = await prisma.popup.findUnique({
     where: {
-      id: params.popupId,
+      id: popupId,
     },
     include: {
       site: true,

@@ -193,7 +193,7 @@ export default function PopupBuilder({
             Version {versionId.slice(0, 6)}
           </p>
           <p className="text-xs text-black/50 dark:text-white/50">
-            Popup: {popupName} (id: {popupId}) status: {popupStatus}
+            Popup id: {popupId} name: {popupName} status: {popupStatus}
           </p>
         </div>
         <div className="flex items-center gap-3">

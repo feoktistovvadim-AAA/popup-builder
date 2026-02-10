@@ -287,16 +287,18 @@ export default function PopupBuilder({
         </div>
 
         {/* Center Panel: Preview Canvas */}
-        <div className={clsx("flex flex-col items-start justify-center rounded-xl border border-black/5 bg-black/5 dark:border-white/5 dark:bg-white/5", previewDevice === "mobile" ? "pt-8 pb-12 px-4" : "pt-6 pb-8 px-4")}>
-          <div className={clsx("relative w-full transition-all duration-300", previewDevice === "mobile" ? "max-w-[360px] mx-auto" : "max-w-full")}>
-            <PreviewCanvas
-              schema={schema}
-              selectedBlockId={selectedBlockId}
-              onSelectBlock={(id) => {
-                setSelectedBlockId(id);
-                setMobileTab("edit");
-              }}
-            />
+        <div className="sticky top-4 self-start">
+          <div className={clsx("flex flex-col items-start justify-center rounded-xl border border-black/5 bg-black/5 dark:border-white/5 dark:bg-white/5", previewDevice === "mobile" ? "pt-8 pb-12 px-4" : "pt-6 pb-8 px-4")}>
+            <div className={clsx("relative w-full transition-all duration-300", previewDevice === "mobile" ? "max-w-[360px] mx-auto" : "max-w-full")}>
+              <PreviewCanvas
+                schema={schema}
+                selectedBlockId={selectedBlockId}
+                onSelectBlock={(id) => {
+                  setSelectedBlockId(id);
+                  setMobileTab("edit");
+                }}
+              />
+            </div>
           </div>
         </div>
 

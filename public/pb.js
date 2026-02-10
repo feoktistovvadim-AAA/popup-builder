@@ -3,6 +3,7 @@
 
   var state = {
     siteId: null,
+    apiBase: "https://popup-builder-blue.vercel.app",
     userContext: {},
     debug: false,
     pageviewCount: null,
@@ -15,6 +16,11 @@
     },
   };
   var bootCache = null;
+
+  function buildApiUrl(path) {
+    var base = state.apiBase || "https://popup-builder-blue.vercel.app";
+    return base.replace(/\/$/, "") + "/" + path.replace(/^\//, "");
+  }
 
   function postJson(url, payload) {
     return fetch(url, {
@@ -537,7 +543,7 @@
   }
 
   function sendEvent(popup, type, data) {
-    postJson("/api/v1/event", {
+    postJson(buildApiUrl("/api/v1/event"), {
       siteId: state.siteId,
       popupId: popup.popupId,
       type: type,
@@ -561,9 +567,10 @@
     var wrapper = document.createElement("div");
     wrapper.innerHTML =
       '<style>' +
+      "* { box-sizing: border-box; }" +
       ".pb-overlay{position:fixed;inset:0;background:" +
       (layout.overlayColor || "rgba(0,0,0,0.6)") +
-      ";display:flex;align-items:center;justify-content:center;z-index:2147483646;}" +
+      ";display:flex;align-items:center;justify-content:center;z-index:2147483647;}" +
       ".pb-modal{font-family:Inter,system-ui,sans-serif;max-width:" +
       (layout.maxWidth || 420) +
       "px;padding:" +
@@ -757,16 +764,16 @@
 
         var scriptOrigin = "";
         if (scriptSrc) {
-          scriptOrigin = new URL(scriptSrc).origin;
+          try {
+            scriptOrigin = new URL(scriptSrc).origin;
+          } catch (e) { }
         }
 
-        var apiBase = apiBaseFromSettings || scriptOrigin || "";
-        console.log("[pb] apiBase", apiBase, "siteId", siteId);
+        // Priority: config.apiBase -> scriptOrigin -> default
+        state.apiBase = apiBaseFromSettings || scriptOrigin || "https://popup-builder-blue.vercel.app";
+        console.log("[pb] apiBase", state.apiBase, "siteId", siteId);
 
-        var url =
-          apiBase +
-          "/api/v1/boot?siteId=" +
-          encodeURIComponent(state.siteId);
+        var url = buildApiUrl("/api/v1/boot") + "?siteId=" + encodeURIComponent(state.siteId);
 
         if (state.debug) {
           url += "&_t=" + new Date().getTime();

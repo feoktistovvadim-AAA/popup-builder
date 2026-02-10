@@ -259,3 +259,64 @@ test.describe('Race Conditions', () => {
         expect(roots).toBe(1);
     });
 });
+
+test.describe('Configuration', () => {
+    test('should respect apiBase setting', async ({ page }) => {
+        const customApiBase = 'https://api.custom-domain.com';
+
+        // Intercept requests to the custom domain
+        // We expect a boot request to this domain
+        let requestMade = false;
+        await page.route(customApiBase + '/**', route => {
+            requestMade = true;
+            route.abort(); // Abort since we don't have a real server there
+        });
+
+        await page.goto('/test-popup.html');
+        await page.evaluate((opts: any) => {
+            // @ts-ignore
+            window.pbSettings = { siteId: opts.siteId, apiBase: opts.apiBase, debug: true };
+            // @ts-ignore
+            if (window.PB) window.PB.init(window.pbSettings);
+        }, { siteId, apiBase: customApiBase });
+
+        // Wait a bit for the request to fire
+        await page.waitForTimeout(1000);
+
+        expect(requestMade).toBe(true);
+    });
+
+    test('should have correct isolation styles', async ({ page }) => {
+        // Use timer popup which appears automatically
+        await page.goto('/test-popup.html?timer=true');
+        await page.evaluate((opts: any) => {
+            // @ts-ignore
+            window.pbSettings = { siteId: opts.siteId, debug: true };
+            // @ts-ignore
+            if (window.PB) window.PB.init(window.pbSettings);
+        }, { siteId });
+
+        await page.waitForSelector('#pb-root', { state: 'attached' });
+
+        // Check styles in Shadow DOM
+        const styles = await page.evaluate(() => {
+            const root = document.querySelector('#pb-root');
+            if (!root || !root.shadowRoot) return null;
+            const overlay = root.shadowRoot.querySelector('.pb-overlay');
+            if (!overlay) return null;
+            const style = window.getComputedStyle(overlay);
+            return {
+                position: style.position,
+                zIndex: style.zIndex,
+                boxSizing: style.boxSizing
+            };
+        });
+
+        expect(styles).toEqual({
+            position: 'fixed',
+            zIndex: '2147483647',
+            boxSizing: 'border-box'
+        });
+    });
+});
+

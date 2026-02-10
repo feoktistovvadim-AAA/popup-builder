@@ -38,6 +38,8 @@ export type LayoutSettings = {
   | "bottom-center"
   | "bottom-right";
   showClose: boolean;
+  closeButtonPlacement: "card" | "screen"; // Default: "card"
+  overlayClickToClose: boolean; // Default: true
 };
 
 export type Trigger =
@@ -154,6 +156,8 @@ const baseLayout: LayoutSettings = {
   animation: "fade",
   position: "center",
   showClose: true,
+  closeButtonPlacement: "card",
+  overlayClickToClose: true,
 };
 
 function createBlock(type: BlockType, props: Record<string, unknown>) {

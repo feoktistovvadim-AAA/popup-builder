@@ -349,6 +349,42 @@ export default function InspectorPanel({
           />
           Show close button
         </label>
+
+        {/* Behavior Section */}
+        <div className="space-y-2 border-t border-black/10 pt-4 dark:border-white/10">
+          <h4 className="text-sm font-semibold text-black dark:text-white">Behavior</h4>
+
+          <label className="space-y-1">
+            <span className="text-xs text-black/70 dark:text-white/70">Close Button Placement</span>
+            <select
+              className="w-full rounded border border-black/10 bg-white px-2 py-1.5 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+              value={layout.closeButtonPlacement ?? "card"}
+              onChange={(event) =>
+                onUpdateLayout({
+                  ...layout,
+                  closeButtonPlacement: event.target.value as "card" | "screen",
+                })
+              }
+            >
+              <option value="card">Inside Card (Recommended)</option>
+              <option value="screen">Screen Corner (Legacy)</option>
+            </select>
+          </label>
+
+          <label className="flex items-center gap-2 text-sm text-black/70 dark:text-white/70">
+            <input
+              type="checkbox"
+              checked={layout.overlayClickToClose ?? true}
+              onChange={(event) =>
+                onUpdateLayout({
+                  ...layout,
+                  overlayClickToClose: event.target.checked,
+                })
+              }
+            />
+            Overlay click closes popup
+          </label>
+        </div>
       </div>
 
       <div className="rounded-lg border border-black/10 bg-white p-4 dark:border-white/10 dark:bg-black">

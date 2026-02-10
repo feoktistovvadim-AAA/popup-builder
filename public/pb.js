@@ -677,13 +677,21 @@
   }
 
   function sendEvent(popup, type, data) {
-    postJson(buildApiUrl("/api/v1/event"), {
+    var payload = {
       siteId: state.siteId,
       popupId: popup.popupId,
-      type: type,
-      data: data || {},
-    });
-    pushEventToDataLayer("pb_" + type, data || {});
+      popupVersion: popup.versionId || popup.version || 1,
+      eventType: type,
+      timestamp: Date.now(),
+      pageUrl: window.location.href,
+      deviceType: getDevice(),
+      triggerType: state.debugInfo.lastTrigger || "unknown",
+    };
+    // Merge additional data
+    Object.assign(payload, data || {});
+
+    postJson(buildApiUrl("/api/v1/event"), payload);
+    pushEventToDataLayer("pb_" + type, payload);
   }
 
   function renderPopup(popup) {
@@ -734,7 +742,9 @@
       ";border:" +
       borderStyle +
       ";}" +
-      ".pb-close{position:absolute;right:16px;top:16px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,0.15);color:white;border:0;cursor:pointer;}" +
+      ".pb-close{position:absolute;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);color:white;border:0;cursor:pointer;font-size:24px;line-height:1;display:flex;align-items:center;justify-content:center;}" +
+      ".pb-close-card{right:12px;top:12px;}" +
+      ".pb-close-screen{right:16px;top:max(16px,env(safe-area-inset-top));}" +
       ".pb-stack{display:flex;flex-direction:column;gap:16px;}" +
       ".pb-button{display:block;text-align:center;padding:10px 16px;border-radius:10px;text-decoration:none;font-weight:600;border:none;}" +
       "</style>" +
@@ -777,16 +787,36 @@
       modal.style.marginRight = "32px";
     }
 
+    // Close button
     if (layout.showClose !== false) {
       var closeBtn = document.createElement("button");
-      closeBtn.className = "pb-close";
+      var placement = layout.closeButtonPlacement || "card";
+      closeBtn.className = "pb-close pb-close-" + placement;
       closeBtn.innerText = "×";
+      closeBtn.setAttribute("aria-label", "Close popup");
       closeBtn.addEventListener("click", function () {
         markClosed(popup, schema.frequency);
-        sendEvent(popup, "close");
+        sendEvent(popup, "close", { closeMethod: "button" });
         host.remove();
       });
-      modal.appendChild(closeBtn);
+
+      if (placement === "card") {
+        modal.appendChild(closeBtn);
+      } else {
+        overlay.appendChild(closeBtn);
+      }
+    }
+
+    // Overlay click to close
+    var overlayClickToClose = layout.overlayClickToClose !== false;
+    if (overlayClickToClose) {
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) {
+          markClosed(popup, schema.frequency);
+          sendEvent(popup, "close", { closeMethod: "overlay" });
+          host.remove();
+        }
+      });
     }
 
     var stack = shadow.querySelector(".pb-stack");
@@ -826,7 +856,10 @@
           a.style.border = (block.props.borderWidth || 1) + "px solid " + (block.props.borderColor || "#ffffff");
         }
         a.addEventListener("click", function () {
-          sendEvent(popup, "click", { url: a.href });
+          sendEvent(popup, "click", {
+            buttonLabel: block.props.label || "Button",
+            buttonUrl: a.href
+          });
         });
         stack.appendChild(a);
       }
@@ -848,7 +881,9 @@
     });
 
     markShown(popup, schema.frequency);
-    sendEvent(popup, "impression");
+
+    // Send impression event (once per render)
+    sendEvent(popup, "impression", {});
   }
 
   function setupTriggers(popup) {

@@ -157,7 +157,7 @@ export default function PreviewCanvas({
   };
 
   return (
-    <div className="flex h-full min-h-[70vh] max-h-[75vh] items-start justify-center rounded-lg border border-black/10 bg-white pt-12 pb-6 px-6 dark:border-white/10 dark:bg-black">
+    <div className="flex h-full min-h-[60vh] max-h-[70vh] items-start justify-center rounded-lg border border-black/10 bg-white pt-8 pb-6 px-6 dark:border-white/10 dark:bg-black">
       <div
         className="relative flex w-full h-full items-center justify-center rounded-lg p-8 transition-all"
         style={{

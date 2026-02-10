@@ -287,8 +287,8 @@ export default function PopupBuilder({
         </div>
 
         {/* Center Panel: Preview Canvas */}
-        <div className={clsx("flex flex-col items-center justify-center rounded-xl border border-black/5 bg-black/5 p-4 dark:border-white/5 dark:bg-white/5", previewDevice === "mobile" ? "py-12" : "py-8")}>
-          <div className={clsx("relative w-full transition-all duration-300", previewDevice === "mobile" ? "max-w-[360px]" : "max-w-full")}>
+        <div className={clsx("flex flex-col items-start justify-center rounded-xl border border-black/5 bg-black/5 dark:border-white/5 dark:bg-white/5", previewDevice === "mobile" ? "pt-8 pb-12 px-4" : "pt-6 pb-8 px-4")}>
+          <div className={clsx("relative w-full transition-all duration-300", previewDevice === "mobile" ? "max-w-[360px] mx-auto" : "max-w-full")}>
             <PreviewCanvas
               schema={schema}
               selectedBlockId={selectedBlockId}

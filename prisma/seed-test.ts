@@ -136,6 +136,59 @@ async function main() {
         blocks: [{ type: 'text', props: { text: 'Race Popup' } }],
     });
 
+    // Sample Analytics Events for testing
+    const now = Date.now();
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
+    const threeDaysAgo = now - 3 * 24 * 60 * 60 * 1000;
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+
+    // Create events for timer-popup
+    const timerPopup = await prisma.popup.findFirst({ where: { site: { id: site.id }, name: 'timer-popup' } });
+    if (timerPopup) {
+        // Impressions
+        await prisma.event.createMany({
+            data: [
+                { popupId: timerPopup.id, eventType: 'impression', timestamp: new Date(now), pageUrl: 'http://localhost:3000/test', deviceType: 'desktop', triggerType: 'after_seconds' },
+                { popupId: timerPopup.id, eventType: 'impression', timestamp: new Date(oneDayAgo), pageUrl: 'http://localhost:3000/test', deviceType: 'mobile', triggerType: 'after_seconds' },
+                { popupId: timerPopup.id, eventType: 'impression', timestamp: new Date(threeDaysAgo), pageUrl: 'http://localhost:3000/page2', deviceType: 'desktop', triggerType: 'after_seconds' },
+                { popupId: timerPopup.id, eventType: 'impression', timestamp: new Date(sevenDaysAgo), pageUrl: 'http://localhost:3000/test', deviceType: 'mobile', triggerType: 'after_seconds' },
+            ]
+        });
+        // Closes
+        await prisma.event.createMany({
+            data: [
+                { popupId: timerPopup.id, eventType: 'close', timestamp: new Date(now), pageUrl: 'http://localhost:3000/test', deviceType: 'desktop', triggerType: 'after_seconds', closeMethod: 'button' },
+                { popupId: timerPopup.id, eventType: 'close', timestamp: new Date(threeDaysAgo), pageUrl: 'http://localhost:3000/page2', deviceType: 'desktop', triggerType: 'after_seconds', closeMethod: 'overlay' },
+            ]
+        });
+    }
+
+    // Create events for click-popup
+    const clickPopup = await prisma.popup.findFirst({ where: { site: { id: site.id }, name: 'click-popup' } });
+    if (clickPopup) {
+        // Impressions
+        await prisma.event.createMany({
+            data: [
+                { popupId: clickPopup.id, eventType: 'impression', timestamp: new Date(now), pageUrl: 'http://localhost:3000/click', deviceType: 'desktop', triggerType: 'after_seconds' },
+                { popupId: clickPopup.id, eventType: 'impression', timestamp: new Date(oneDayAgo), pageUrl: 'http://localhost:3000/click', deviceType: 'desktop', triggerType: 'after_seconds' },
+                { popupId: clickPopup.id, eventType: 'impression', timestamp: new Date(threeDaysAgo), pageUrl: 'http://localhost:3000/click', deviceType: 'mobile', triggerType: 'after_seconds' },
+            ]
+        });
+        // Clicks
+        await prisma.event.createMany({
+            data: [
+                { popupId: clickPopup.id, eventType: 'click', timestamp: new Date(now), pageUrl: 'http://localhost:3000/click', deviceType: 'desktop', triggerType: 'after_seconds', buttonLabel: 'Test CTA', buttonUrl: 'https://example.com' },
+                { popupId: clickPopup.id, eventType: 'click', timestamp: new Date(oneDayAgo), pageUrl: 'http://localhost:3000/click', deviceType: 'desktop', triggerType: 'after_seconds', buttonLabel: 'Test CTA', buttonUrl: 'https://example.com' },
+            ]
+        });
+        // Closes
+        await prisma.event.createMany({
+            data: [
+                { popupId: clickPopup.id, eventType: 'close', timestamp: new Date(threeDaysAgo), pageUrl: 'http://localhost:3000/click', deviceType: 'mobile', triggerType: 'after_seconds', closeMethod: 'button' },
+            ]
+        });
+    }
+
     console.log('✅ Seeding complete');
 }
 

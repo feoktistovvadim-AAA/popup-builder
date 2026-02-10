@@ -189,3 +189,21 @@ model PopupPreset {
   @@index([organizationId])
   @@index([createdByUserId])
 }
+
+model Event {
+  id           String   @id @default(cuid())
+  popupId      String
+  eventType    String
+  timestamp    DateTime @default(now())
+  pageUrl      String?
+  deviceType   String?
+  triggerType  String?
+  buttonLabel  String?
+  buttonUrl    String?
+  closeMethod  String?
+  createdAt    DateTime @default(now())
+
+  @@index([popupId])
+  @@index([eventType])
+  @@index([timestamp])
+}

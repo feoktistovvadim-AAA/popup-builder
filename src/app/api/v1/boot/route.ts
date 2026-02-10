@@ -1,21 +1,15 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
+import { handleOptions, withCors } from "@/lib/cors";
 import { prisma } from "@/lib/prisma";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Access-Control-Max-Age": "86400",
-};
 
 const querySchema = z.object({
   siteId: z.string().min(1),
 });
 
 export async function OPTIONS() {
-  return new NextResponse(null, { status: 204, headers: corsHeaders });
+  return handleOptions();
 }
 
 export async function GET(request: Request) {
@@ -25,10 +19,10 @@ export async function GET(request: Request) {
   });
 
   if (!parsed.success) {
-    return NextResponse.json(
+    return withCors(NextResponse.json(
       { error: "Invalid request", issues: parsed.error.flatten() },
-      { status: 400, headers: corsHeaders }
-    );
+      { status: 400 }
+    ));
   }
 
   const site = await prisma.site.findUnique({
@@ -48,10 +42,10 @@ export async function GET(request: Request) {
   });
 
   if (!site) {
-    return NextResponse.json(
+    return withCors(NextResponse.json(
       { error: "Site not found" },
-      { status: 404, headers: corsHeaders }
-    );
+      { status: 404 }
+    ));
   }
 
   const popups = site.popups
@@ -67,16 +61,15 @@ export async function GET(request: Request) {
     })
     .filter(Boolean);
 
-  return NextResponse.json(
+  return withCors(NextResponse.json(
     {
       siteId: site.id,
       popups,
     },
     {
       headers: {
-        ...corsHeaders,
         "Cache-Control": "public, max-age=60, stale-while-revalidate=300",
       },
     }
-  );
+  ));
 }

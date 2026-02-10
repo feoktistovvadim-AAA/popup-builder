@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { handleOptions, withCors } from "@/lib/cors";
 
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
@@ -14,20 +15,30 @@ const eventSchema = z.object({
 export async function POST(request: Request) {
   const parsed = eventSchema.safeParse(await request.json());
   if (!parsed.success) {
-    return NextResponse.json(
+    return withCors(NextResponse.json(
       { error: "Invalid input", issues: parsed.error.flatten() },
       { status: 400 }
-    );
+    ));
   }
 
-  await prisma.popupEvent.create({
-    data: {
-      siteId: parsed.data.siteId,
-      popupId: parsed.data.popupId,
-      type: parsed.data.type,
-      data: (parsed.data.data ?? {}) as Prisma.InputJsonValue,
-    },
-  });
+  try {
+    await prisma.popupEvent.create({
+      data: {
+        siteId: parsed.data.siteId,
+        popupId: parsed.data.popupId,
+        type: parsed.data.type,
+        data: (parsed.data.data ?? {}) as Prisma.InputJsonValue,
+      },
+    });
 
-  return NextResponse.json({ ok: true });
+    const response = NextResponse.json({ ok: true });
+    return withCors(response);
+  } catch (error) {
+    console.error("Event error:", error);
+    return withCors(NextResponse.json({ error: "Internal Server Error" }, { status: 500 }));
+  }
+}
+
+export async function OPTIONS() {
+  return handleOptions();
 }

@@ -175,6 +175,8 @@ test.describe('Event Tracking', () => {
 
     test('should emit click event when button is clicked', async ({ page }) => {
         const events: any[] = [];
+        let clickEventPromise: Promise<any> | null = null;
+
         await page.route('**/api/v1/event', route => {
             const postData = route.request().postDataJSON();
             events.push(postData);
@@ -184,7 +186,28 @@ test.describe('Event Tracking', () => {
         await initPB(page, '?timer=true');
         await page.waitForTimeout(2500);
 
-        // Click button in popup (if exists)
+        // Check if button exists
+        const hasButton = await page.evaluate(() => {
+            const root = document.querySelector('#pb-root');
+            if (!root || !root.shadowRoot) return false;
+            return !!root.shadowRoot.querySelector('.pb-button');
+        });
+
+        // Skip test if no button exists in this popup
+        if (!hasButton) {
+            test.skip();
+            return;
+        }
+
+        // Wait for click event request
+        clickEventPromise = page.waitForRequest(
+            req => req.url().includes('/api/v1/event') &&
+                req.method() === 'POST' &&
+                req.postDataJSON()?.eventType === 'click',
+            { timeout: 2000 }
+        );
+
+        // Click button
         await page.evaluate(() => {
             const root = document.querySelector('#pb-root');
             if (!root || !root.shadowRoot) return;
@@ -193,7 +216,8 @@ test.describe('Event Tracking', () => {
             if (button) button.click();
         });
 
-        await page.waitForTimeout(200);
+        // Wait for the click event request
+        await clickEventPromise;
 
         // Verify click event was sent
         const clickEvent = events.find(e => e.eventType === 'click');

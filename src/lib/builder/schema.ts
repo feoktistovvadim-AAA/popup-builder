@@ -20,14 +20,55 @@ export type LayoutSettings = {
 };
 
 export type Trigger =
-  | { type: "after_seconds"; seconds: number }
-  | { type: "scroll_percent"; percent: number }
-  | { type: "exit_intent_desktop" }
-  | { type: "custom_event"; eventName: string }
-  | { type: "inactivity"; seconds: number }
-  | { type: "pageview_count"; count: number }
-  | { type: "url_match"; pattern: string }
-  | { type: "device_is"; device: "desktop" | "mobile" };
+  | {
+      type: "after_seconds";
+      enabled?: boolean;
+      params?: { seconds: number };
+      seconds?: number;
+    }
+  | {
+      type: "scroll_percent";
+      enabled?: boolean;
+      params?: { percent: number };
+      percent?: number;
+    }
+  | {
+      type: "exit_intent_desktop";
+      enabled?: boolean;
+      params?: { sensitivity?: number };
+      sensitivity?: number;
+    }
+  | {
+      type: "custom_event";
+      enabled?: boolean;
+      params?: { name: string };
+      eventName?: string;
+    }
+  | {
+      type: "inactivity";
+      enabled?: boolean;
+      params?: { seconds: number };
+      seconds?: number;
+    }
+  | {
+      type: "pageview_count";
+      enabled?: boolean;
+      params?: { count: number };
+      count?: number;
+    }
+  | {
+      type: "url_match";
+      enabled?: boolean;
+      params?: { pattern: string; match?: "contains" | "equals" | "regex" };
+      pattern?: string;
+      match?: "contains" | "equals" | "regex";
+    }
+  | {
+      type: "device_is";
+      enabled?: boolean;
+      params?: { device: "desktop" | "mobile" };
+      device?: "desktop" | "mobile";
+    };
 
 export type TargetingRule =
   | { type: "vip_level_is"; value: string }
@@ -53,6 +94,7 @@ export type PopupSchemaV2 = {
     layout: LayoutSettings;
   };
   triggers: Trigger[];
+  triggersMode?: "any" | "all";
   frequency: FrequencyConfig;
   targeting: TargetingRule[];
 };

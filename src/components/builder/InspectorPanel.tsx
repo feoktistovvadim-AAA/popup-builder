@@ -55,6 +55,25 @@ export default function InspectorPanel({
   const layout = schema.template.layout;
   const [uploading, setUploading] = useState(false);
 
+  const getTriggerParam = <T,>(
+    trigger: Trigger,
+    key: string,
+    fallback: T
+  ): T => {
+    if (trigger.params && key in trigger.params) {
+      return (trigger.params as Record<string, unknown>)[key] as T;
+    }
+    if (key in trigger) {
+      return (trigger as Record<string, unknown>)[key] as T;
+    }
+    return fallback;
+  };
+
+  const setTriggerParam = (trigger: Trigger, key: string, value: unknown) => ({
+    ...trigger,
+    params: { ...(trigger.params ?? {}), [key]: value },
+  });
+
   const handleImageUpload = async (file: File) => {
     if (!selectedBlock || selectedBlock.type !== "image") return;
     setUploading(true);
@@ -461,82 +480,143 @@ export default function InspectorPanel({
                 ))}
               </select>
 
-              {"seconds" in trigger ? (
+              {trigger.type === "after_seconds" ||
+              trigger.type === "inactivity" ? (
                 <input
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
                   type="number"
-                  value={trigger.seconds}
+                  value={getTriggerParam(trigger, "seconds", 5)}
                   onChange={(event) => {
                     const next = [...schema.triggers];
-                    next[index] = { ...trigger, seconds: Number(event.target.value) } as Trigger;
+                    next[index] = setTriggerParam(
+                      trigger,
+                      "seconds",
+                      Number(event.target.value)
+                    ) as Trigger;
                     onUpdateTriggers(next);
                   }}
                 />
               ) : null}
 
-              {"percent" in trigger ? (
+              {trigger.type === "scroll_percent" ? (
                 <input
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
                   type="number"
-                  value={trigger.percent}
+                  value={getTriggerParam(trigger, "percent", 10)}
                   onChange={(event) => {
                     const next = [...schema.triggers];
-                    next[index] = { ...trigger, percent: Number(event.target.value) } as Trigger;
+                    next[index] = setTriggerParam(
+                      trigger,
+                      "percent",
+                      Number(event.target.value)
+                    ) as Trigger;
                     onUpdateTriggers(next);
                   }}
                 />
               ) : null}
 
-              {"eventName" in trigger ? (
+              {trigger.type === "custom_event" ? (
                 <input
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                  value={trigger.eventName}
+                  value={getTriggerParam(trigger, "name", trigger.eventName ?? "")}
                   onChange={(event) => {
                     const next = [...schema.triggers];
-                    next[index] = { ...trigger, eventName: event.target.value } as Trigger;
+                    next[index] = setTriggerParam(
+                      trigger,
+                      "name",
+                      event.target.value
+                    ) as Trigger;
                     onUpdateTriggers(next);
                   }}
                 />
               ) : null}
 
-              {"pattern" in trigger ? (
-                <input
-                  className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                  value={trigger.pattern}
-                  onChange={(event) => {
-                    const next = [...schema.triggers];
-                    next[index] = { ...trigger, pattern: event.target.value } as Trigger;
-                    onUpdateTriggers(next);
-                  }}
-                />
+              {trigger.type === "url_match" ? (
+                <div className="space-y-2">
+                  <input
+                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                    value={getTriggerParam(trigger, "pattern", "")}
+                    onChange={(event) => {
+                      const next = [...schema.triggers];
+                      next[index] = setTriggerParam(
+                        trigger,
+                        "pattern",
+                        event.target.value
+                      ) as Trigger;
+                      onUpdateTriggers(next);
+                    }}
+                  />
+                  <select
+                    className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                    value={getTriggerParam(trigger, "match", "contains")}
+                    onChange={(event) => {
+                      const next = [...schema.triggers];
+                      next[index] = setTriggerParam(
+                        trigger,
+                        "match",
+                        event.target.value
+                      ) as Trigger;
+                      onUpdateTriggers(next);
+                    }}
+                  >
+                    <option value="contains">contains</option>
+                    <option value="equals">equals</option>
+                    <option value="regex">regex</option>
+                  </select>
+                </div>
               ) : null}
 
-              {"count" in trigger ? (
+              {trigger.type === "pageview_count" ? (
                 <input
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
                   type="number"
-                  value={trigger.count}
+                  value={getTriggerParam(trigger, "count", 1)}
                   onChange={(event) => {
                     const next = [...schema.triggers];
-                    next[index] = { ...trigger, count: Number(event.target.value) } as Trigger;
+                    next[index] = setTriggerParam(
+                      trigger,
+                      "count",
+                      Number(event.target.value)
+                    ) as Trigger;
                     onUpdateTriggers(next);
                   }}
                 />
               ) : null}
 
-              {"device" in trigger ? (
+              {trigger.type === "device_is" ? (
                 <select
                   className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
-                  value={trigger.device}
+                  value={getTriggerParam(trigger, "device", "desktop")}
                   onChange={(event) => {
                     const next = [...schema.triggers];
-                    next[index] = { ...trigger, device: event.target.value as "desktop" | "mobile" } as Trigger;
+                    next[index] = setTriggerParam(
+                      trigger,
+                      "device",
+                      event.target.value as "desktop" | "mobile"
+                    ) as Trigger;
                     onUpdateTriggers(next);
                   }}
                 >
                   <option value="desktop">desktop</option>
                   <option value="mobile">mobile</option>
                 </select>
+              ) : null}
+
+              {trigger.type === "exit_intent_desktop" ? (
+                <input
+                  className="w-full rounded border border-black/10 bg-white px-2 py-1 text-sm text-black dark:border-white/10 dark:bg-black dark:text-white"
+                  type="number"
+                  value={getTriggerParam(trigger, "sensitivity", 10)}
+                  onChange={(event) => {
+                    const next = [...schema.triggers];
+                    next[index] = setTriggerParam(
+                      trigger,
+                      "sensitivity",
+                      Number(event.target.value)
+                    ) as Trigger;
+                    onUpdateTriggers(next);
+                  }}
+                />
               ) : null}
 
               <button

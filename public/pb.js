@@ -4,6 +4,15 @@
   var state = {
     siteId: null,
     userContext: {},
+    debug: false,
+    pageviewCount: null,
+    debugInfo: {
+      popupsCount: 0,
+      popupId: null,
+      versionId: null,
+      lastTrigger: null,
+      blockedReason: null,
+    },
   };
   var bootCache = null;
 
@@ -25,6 +34,396 @@
 
   function getDevice() {
     return window.innerWidth <= 768 ? "mobile" : "desktop";
+  }
+
+  function debugLog() {
+    if (!state.debug) return;
+    var args = Array.prototype.slice.call(arguments);
+    args.unshift("[PB][trigger]");
+    console.log.apply(console, args);
+  }
+
+  function renderDebugHud() {
+    if (!state.debug) return;
+    var existing = document.getElementById("pb-debug-hud");
+    if (!existing) {
+      existing = document.createElement("div");
+      existing.id = "pb-debug-hud";
+      existing.style.position = "fixed";
+      existing.style.bottom = "12px";
+      existing.style.right = "12px";
+      existing.style.zIndex = "2147483647";
+      existing.style.background = "rgba(0,0,0,0.8)";
+      existing.style.color = "#fff";
+      existing.style.padding = "10px 12px";
+      existing.style.borderRadius = "8px";
+      existing.style.fontSize = "12px";
+      existing.style.fontFamily = "Inter, system-ui, sans-serif";
+      existing.style.maxWidth = "260px";
+      document.body.appendChild(existing);
+    }
+
+    existing.textContent =
+      "PB Debug\n" +
+      "popups: " +
+      state.debugInfo.popupsCount +
+      "\n" +
+      "popupId: " +
+      (state.debugInfo.popupId || "-") +
+      "\n" +
+      "versionId: " +
+      (state.debugInfo.versionId || "-") +
+      "\n" +
+      "lastTrigger: " +
+      (state.debugInfo.lastTrigger || "-") +
+      "\n" +
+      "blocked: " +
+      (state.debugInfo.blockedReason || "-");
+  }
+
+  function normalizeTrigger(trigger) {
+    if (!trigger || !trigger.type) return null;
+    var enabled = trigger.enabled !== false;
+    if (!enabled) return null;
+    var params = trigger.params || {};
+    var isValidNumber = function (value) {
+      return typeof value === "number" && !isNaN(value);
+    };
+
+    if (trigger.type === "after_seconds") {
+      var seconds = Number(params.seconds || trigger.seconds || 5);
+      if (!isValidNumber(seconds) || seconds <= 0) {
+        debugLog("invalid after_seconds", { seconds: seconds });
+        return null;
+      }
+      return {
+        type: "after_seconds",
+        params: { seconds: seconds },
+      };
+    }
+    if (trigger.type === "scroll_percent") {
+      var percent = Number(params.percent || trigger.percent || 10);
+      if (!isValidNumber(percent) || percent <= 0) {
+        debugLog("invalid scroll_percent", { percent: percent });
+        return null;
+      }
+      return {
+        type: "scroll_percent",
+        params: { percent: percent },
+      };
+    }
+    if (trigger.type === "exit_intent_desktop") {
+      var sensitivity = Number(params.sensitivity || trigger.sensitivity || 10);
+      return {
+        type: "exit_intent_desktop",
+        params: { sensitivity: isValidNumber(sensitivity) ? sensitivity : 10 },
+      };
+    }
+    if (trigger.type === "inactivity") {
+      var idleSeconds = Number(params.seconds || trigger.seconds || 10);
+      if (!isValidNumber(idleSeconds) || idleSeconds <= 0) {
+        debugLog("invalid inactivity", { seconds: idleSeconds });
+        return null;
+      }
+      return {
+        type: "inactivity",
+        params: { seconds: idleSeconds },
+      };
+    }
+    if (trigger.type === "pageview_count") {
+      var count = Number(params.count || trigger.count || 1);
+      if (!isValidNumber(count) || count <= 0) {
+        debugLog("invalid pageview_count", { count: count });
+        return null;
+      }
+      return {
+        type: "pageview_count",
+        params: { count: count },
+      };
+    }
+    if (trigger.type === "url_match") {
+      return {
+        type: "url_match",
+        params: {
+          pattern: String(params.pattern || trigger.pattern || ""),
+          match: params.match || trigger.match || "contains",
+        },
+      };
+    }
+    if (trigger.type === "device_is") {
+      return {
+        type: "device_is",
+        params: { device: params.device || trigger.device || "desktop" },
+      };
+    }
+    if (trigger.type === "custom_event") {
+      var name = String(params.name || trigger.eventName || "");
+      if (!name) {
+        debugLog("invalid custom_event missing name");
+        return null;
+      }
+      return {
+        type: "custom_event",
+        params: { name: name },
+      };
+    }
+
+    return null;
+  }
+
+  function getPageviewCount() {
+    if (!state.siteId) return 0;
+    if (typeof state.pageviewCount === "number") {
+      return state.pageviewCount;
+    }
+    var key = "pb_pageviews_" + state.siteId;
+    var count = Number(localStorage.getItem(key) || "0") + 1;
+    localStorage.setItem(key, String(count));
+    state.pageviewCount = count;
+    return count;
+  }
+
+  function createTriggerPromise(trigger, popupId) {
+    var cleanup = function () {};
+
+    if (trigger.type === "after_seconds") {
+      var timeout = setTimeout(function () {
+        state.debugInfo.lastTrigger = "after_seconds";
+        debugLog("fired after_seconds", { popupId: popupId, seconds: trigger.params.seconds });
+        resolve();
+      }, trigger.params.seconds * 1000);
+      cleanup = function () {
+        clearTimeout(timeout);
+      };
+      var resolve;
+      var promise = new Promise(function (res) {
+        resolve = res;
+      });
+      debugLog("armed after_seconds", { popupId: popupId, seconds: trigger.params.seconds });
+      return { promise: promise, cleanup: cleanup };
+    }
+
+    if (trigger.type === "scroll_percent") {
+      var resolveScroll;
+      var promiseScroll = new Promise(function (res) {
+        resolveScroll = res;
+      });
+      var onScroll = function () {
+        var scrolled =
+          (window.scrollY /
+            (document.documentElement.scrollHeight - window.innerHeight)) *
+          100;
+        if (scrolled >= trigger.params.percent) {
+          window.removeEventListener("scroll", onScroll);
+          state.debugInfo.lastTrigger = "scroll_percent";
+          debugLog("fired scroll_percent", { popupId: popupId, percent: scrolled });
+          resolveScroll();
+        }
+      };
+      window.addEventListener("scroll", onScroll);
+      cleanup = function () {
+        window.removeEventListener("scroll", onScroll);
+      };
+      debugLog("armed scroll_percent", { popupId: popupId, percent: trigger.params.percent });
+      return { promise: promiseScroll, cleanup: cleanup };
+    }
+
+    if (trigger.type === "exit_intent_desktop") {
+      var resolveExit;
+      var promiseExit = new Promise(function (res) {
+        resolveExit = res;
+      });
+      if (getDevice() !== "desktop") {
+        debugLog("skip exit_intent_desktop on mobile", { popupId: popupId });
+        return { promise: new Promise(function () {}), cleanup: cleanup };
+      }
+      var sensitivity = trigger.params.sensitivity;
+      var onMouseOut = function (event) {
+        if (event.clientY <= sensitivity) {
+          document.removeEventListener("mouseout", onMouseOut);
+          state.debugInfo.lastTrigger = "exit_intent_desktop";
+          debugLog("fired exit_intent_desktop", { popupId: popupId, sensitivity: sensitivity });
+          resolveExit();
+        }
+      };
+      document.addEventListener("mouseout", onMouseOut);
+      cleanup = function () {
+        document.removeEventListener("mouseout", onMouseOut);
+      };
+      debugLog("armed exit_intent_desktop", { popupId: popupId, sensitivity: sensitivity });
+      return { promise: promiseExit, cleanup: cleanup };
+    }
+
+    if (trigger.type === "inactivity") {
+      var resolveInactivity;
+      var promiseInactivity = new Promise(function (res) {
+        resolveInactivity = res;
+      });
+      var timeoutId;
+      var delay = trigger.params.seconds * 1000;
+      var reset = function () {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(function () {
+          state.debugInfo.lastTrigger = "inactivity";
+          debugLog("fired inactivity", { popupId: popupId, seconds: trigger.params.seconds });
+          resolveInactivity();
+          cleanup();
+        }, delay);
+      };
+      var events = ["mousemove", "keydown", "scroll", "touchstart"];
+      events.forEach(function (eventName) {
+        window.addEventListener(eventName, reset, { passive: true });
+      });
+      reset();
+      cleanup = function () {
+        clearTimeout(timeoutId);
+        events.forEach(function (eventName) {
+          window.removeEventListener(eventName, reset);
+        });
+      };
+      debugLog("armed inactivity", { popupId: popupId, seconds: trigger.params.seconds });
+      return { promise: promiseInactivity, cleanup: cleanup };
+    }
+
+    if (trigger.type === "pageview_count") {
+      var required = trigger.params.count;
+      var count = getPageviewCount();
+      debugLog("pageview_count check", { popupId: popupId, count: count, required: required });
+      if (count >= required) {
+        state.debugInfo.lastTrigger = "pageview_count";
+        return {
+          promise: Promise.resolve(),
+          cleanup: cleanup,
+        };
+      }
+      return { promise: new Promise(function () {}), cleanup: cleanup };
+    }
+
+    if (trigger.type === "url_match") {
+      var pattern = trigger.params.pattern || "";
+      var matchType = trigger.params.match || "contains";
+      if (!pattern) {
+        debugLog("invalid url_match missing pattern", { popupId: popupId });
+        return { promise: new Promise(function () {}), cleanup: cleanup };
+      }
+      var href = window.location.href;
+      var haystack = href.toLowerCase();
+      var needle = pattern.toLowerCase();
+      var matched = false;
+      if (matchType === "equals") {
+        matched = haystack === needle;
+      } else if (matchType === "regex") {
+        try {
+          matched = new RegExp(pattern, "i").test(href);
+        } catch (error) {
+          debugLog("invalid url_match regex", { popupId: popupId, pattern: pattern });
+          matched = false;
+        }
+      } else {
+        matched = haystack.indexOf(needle) !== -1;
+      }
+      debugLog("url_match check", {
+        popupId: popupId,
+        match: matchType,
+        pattern: pattern,
+        matched: matched,
+      });
+      if (matched) {
+        state.debugInfo.lastTrigger = "url_match";
+        return { promise: Promise.resolve(), cleanup: cleanup };
+      }
+      return { promise: new Promise(function () {}), cleanup: cleanup };
+    }
+
+    if (trigger.type === "device_is") {
+      var device = trigger.params.device || "desktop";
+      var isMatch = getDevice() === device;
+      debugLog("device_is check", { popupId: popupId, device: device, matched: isMatch });
+      if (isMatch) {
+        state.debugInfo.lastTrigger = "device_is";
+        return { promise: Promise.resolve(), cleanup: cleanup };
+      }
+      return { promise: new Promise(function () {}), cleanup: cleanup };
+    }
+
+    if (trigger.type === "custom_event") {
+      var resolveCustom;
+      var promiseCustom = new Promise(function (res) {
+        resolveCustom = res;
+      });
+      var name = trigger.params.name;
+      if (!name) {
+        debugLog("invalid custom_event missing name", { popupId: popupId });
+        return { promise: new Promise(function () {}), cleanup: cleanup };
+      }
+      var handler = function (event) {
+        state.debugInfo.lastTrigger = "custom_event";
+        debugLog("fired custom_event", { popupId: popupId, name: name, detail: event.detail });
+        resolveCustom();
+      };
+      window.addEventListener(name, handler);
+      window.addEventListener("pb:" + name, handler);
+      cleanup = function () {
+        window.removeEventListener(name, handler);
+        window.removeEventListener("pb:" + name, handler);
+      };
+      debugLog("armed custom_event", { popupId: popupId, name: name });
+      return { promise: promiseCustom, cleanup: cleanup };
+    }
+
+    return { promise: new Promise(function () {}), cleanup: cleanup };
+  }
+
+  function runTriggers(triggers, mode, popupId) {
+    if (!triggers || !triggers.length) {
+      debugLog("no triggers configured", { popupId: popupId });
+      return Promise.resolve();
+    }
+
+    var normalized = triggers
+      .map(normalizeTrigger)
+      .filter(function (trigger) {
+        return trigger;
+      });
+
+    if (!normalized.length) {
+      debugLog("no valid triggers", { popupId: popupId });
+      return Promise.resolve();
+    }
+
+    debugLog("trigger config", { popupId: popupId, mode: mode, triggers: normalized });
+
+    if (mode === "all") {
+      var allHandlers = normalized.map(function (trigger) {
+        return createTriggerPromise(trigger, popupId);
+      });
+      return Promise.all(
+        allHandlers.map(function (handler) {
+          return handler.promise;
+        })
+      ).then(function () {
+        allHandlers.forEach(function (handler) {
+          handler.cleanup();
+        });
+      });
+    }
+
+    return new Promise(function (resolve) {
+      var fired = false;
+      var handlers = normalized.map(function (trigger) {
+        return createTriggerPromise(trigger, popupId);
+      });
+      handlers.forEach(function (handler) {
+        handler.promise.then(function () {
+          if (fired) return;
+          fired = true;
+          handlers.forEach(function (item) {
+            item.cleanup();
+          });
+          resolve();
+        });
+      });
+    });
   }
 
   function matchesTargeting(targeting) {
@@ -55,8 +454,8 @@
     return perCampaign ? "pb_freq_" + popupId + "_" + versionId : "pb_freq_" + popupId;
   }
 
-  function canShowByFrequency(popup, frequency) {
-    if (!frequency) return true;
+  function checkFrequency(popup, frequency) {
+    if (!frequency) return { allowed: true, reason: null };
     var key = getFrequencyKey(popup.popupId, popup.versionId, frequency.perCampaign);
     var data = {};
     try {
@@ -64,27 +463,33 @@
     } catch {}
 
     var now = Date.now();
-    if (frequency.showOnce && data.shown) return false;
+    if (frequency.showOnce && data.shown) {
+      return { allowed: false, reason: "showOnce" };
+    }
 
     if (frequency.maxPer24h && data.lastShown) {
       var since = now - data.lastShown;
       if (since < 24 * 60 * 60 * 1000 && data.shown24h >= frequency.maxPer24h) {
-        return false;
+        return { allowed: false, reason: "maxPer24h" };
       }
     }
 
     if (frequency.cooldownAfterCloseHours && data.lastClosed) {
       var cooldown = frequency.cooldownAfterCloseHours * 60 * 60 * 1000;
-      if (now - data.lastClosed < cooldown) return false;
+      if (now - data.lastClosed < cooldown) {
+        return { allowed: false, reason: "cooldown" };
+      }
     }
 
     if (frequency.maxPerSession) {
       var sessionKey = key + "_session";
       var sessionCount = Number(sessionStorage.getItem(sessionKey) || "0");
-      if (sessionCount >= frequency.maxPerSession) return false;
+      if (sessionCount >= frequency.maxPerSession) {
+        return { allowed: false, reason: "maxPerSession" };
+      }
     }
 
-    return true;
+    return { allowed: true, reason: null };
   }
 
   function markShown(popup, frequency) {
@@ -257,43 +662,10 @@
       renderPopup(popup);
       return;
     }
-
-    triggers.forEach(function (trigger) {
-      if (trigger.type === "after_seconds") {
-        setTimeout(function () {
-          renderPopup(popup);
-        }, trigger.seconds * 1000);
-      }
-
-      if (trigger.type === "scroll_percent") {
-        var onScroll = function () {
-          var scrolled =
-            (window.scrollY /
-              (document.documentElement.scrollHeight - window.innerHeight)) *
-            100;
-          if (scrolled >= trigger.percent) {
-            window.removeEventListener("scroll", onScroll);
-            renderPopup(popup);
-          }
-        };
-        window.addEventListener("scroll", onScroll);
-      }
-
-      if (trigger.type === "exit_intent_desktop") {
-        var onMouseOut = function (event) {
-          if (event.clientY <= 0) {
-            document.removeEventListener("mouseout", onMouseOut);
-            renderPopup(popup);
-          }
-        };
-        document.addEventListener("mouseout", onMouseOut);
-      }
-
-      if (trigger.type === "custom_event") {
-        window.addEventListener(trigger.eventName, function () {
-          renderPopup(popup);
-        });
-      }
+    var mode = schema.triggersMode || schema.triggerMode || "any";
+    runTriggers(triggers, mode === "all" ? "all" : "any", popup.popupId).then(function () {
+      renderDebugHud();
+      renderPopup(popup);
     });
   }
 
@@ -302,7 +674,12 @@
     data.popups.forEach(function (popup) {
       var schema = popup.schema || {};
       if (!matchesTargeting(schema.targeting || [])) return;
-      if (!canShowByFrequency(popup, schema.frequency || {})) return;
+      var frequencyCheck = checkFrequency(popup, schema.frequency || {});
+      if (!frequencyCheck.allowed) {
+        state.debugInfo.blockedReason = frequencyCheck.reason;
+        renderDebugHud();
+        return;
+      }
       setupTriggers(popup);
     });
   }
@@ -323,6 +700,31 @@
       "ids:",
       ids
     );
+    state.debugInfo.popupsCount = popups.length;
+    renderDebugHud();
+
+    popups.forEach(function (popup) {
+      var schema = popup.rules || popup.schema || {};
+      var resolvedPopup = {
+        popupId: popup.id,
+        versionId: popup.versionId,
+        schema: schema,
+      };
+      if (!matchesTargeting(schema.targeting || [])) return;
+      var frequencyCheck = checkFrequency(resolvedPopup, schema.frequency || {});
+      if (!frequencyCheck.allowed) {
+        state.debugInfo.popupId = resolvedPopup.popupId;
+        state.debugInfo.versionId = resolvedPopup.versionId;
+        state.debugInfo.blockedReason = frequencyCheck.reason;
+        renderDebugHud();
+        return;
+      }
+      state.debugInfo.popupId = resolvedPopup.popupId;
+      state.debugInfo.versionId = resolvedPopup.versionId;
+      state.debugInfo.blockedReason = null;
+      renderDebugHud();
+      setupTriggers(resolvedPopup);
+    });
   }
 
   window.PB = {
@@ -338,6 +740,12 @@
 
         state.siteId = siteId;
         state.userContext = (config && config.userContext) || {};
+        state.debug = Boolean(config && config.debug);
+        state.debugInfo.popupsCount = 0;
+        state.debugInfo.popupId = null;
+        state.debugInfo.versionId = null;
+        state.debugInfo.lastTrigger = null;
+        state.debugInfo.blockedReason = null;
 
         if (bootCache && bootCache.siteId === state.siteId) {
           handleBoot(bootCache);
@@ -380,6 +788,16 @@
         console.warn("[PB] Boot failed.", error);
       }
     },
+  };
+
+  window.pbTrack = function (eventName, payload) {
+    try {
+      window.dispatchEvent(
+        new CustomEvent("pb:" + eventName, { detail: payload })
+      );
+    } catch (error) {
+      console.warn("[PB] pbTrack failed.", error);
+    }
   };
 
   if (window.pbSettings && window.pbSettings.siteId) {

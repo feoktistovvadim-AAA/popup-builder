@@ -137,6 +137,8 @@ export default function PreviewCanvas({
   onSelectBlock: (id: string) => void;
 }) {
   const layout = schema.template.layout;
+  const closeButtonPlacement = layout.closeButtonPlacement || "card";
+
   const containerStyle: CSSProperties = {
     maxWidth: layout.maxWidthDesktop ? `${layout.maxWidthDesktop}px` : "420px",
     width: "100%",
@@ -165,6 +167,17 @@ export default function PreviewCanvas({
           backdropFilter: layout.overlayBlur ? `blur(${layout.overlayBlur}px)` : "none",
         }}
       >
+        {/* Close button on overlay/screen */}
+        {layout.showClose && closeButtonPlacement === "screen" ? (
+          <button
+            className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white text-2xl leading-none cursor-pointer border-0"
+            style={{ fontSize: "24px" }}
+            type="button"
+          >
+            ×
+          </button>
+        ) : null}
+
         <div
           className={clsx(
             "relative transition-all",
@@ -178,13 +191,17 @@ export default function PreviewCanvas({
           )}
           style={containerStyle}
         >
-          {layout.showClose ? (
-            <div className="mb-4 flex justify-end">
-              <div className="flex h-6 w-6 items-center justify-center rounded-full bg-white/10 text-white/60">
-                ×
-              </div>
-            </div>
+          {/* Close button on card */}
+          {layout.showClose && closeButtonPlacement === "card" ? (
+            <button
+              className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/15 text-white text-2xl leading-none cursor-pointer border-0"
+              style={{ fontSize: "24px" }}
+              type="button"
+            >
+              ×
+            </button>
           ) : null}
+
           <div className="space-y-4">
             {schema.blocks.map((block) => (
               <div

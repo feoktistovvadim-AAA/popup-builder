@@ -7,20 +7,13 @@
     userContext: {},
     debug: false,
     pageviewCount: null,
-    getDebugInfo: function () {
-      var info = {
-        version: "1.0.0",
-        currentPopup: PB._currentPopup || null,
-        lastTrigger: PB._lastTrigger || null,
-        lastDecision: PB._lastDecision || null,
-        resolvedLang: PB._resolvedLang || "en",
-        baseLang: PB._baseLang || "en",
-        usedFallback: PB._usedFallback || false,
-        availableLangs: PB._currentSchema && PB._currentSchema.localization
-          ? PB._currentSchema.localization.enabledLangs
-          : ["en"]
-      };
-      return info;
+    debugInfo: {
+      popupsCount: 0,
+      popupId: null,
+      versionId: null,
+      lastTrigger: null,
+      blockedReason: null,
+      smartExitIntentState: {},
     },
   };
   var bootCache = null;
@@ -1109,8 +1102,20 @@
       }
     },
     getDebugInfo: function () {
-      return state.debugInfo;
+      return {
+        version: "1.0.0",
+        currentPopup: PB._currentPopup || null,
+        lastTrigger: PB._lastTrigger || null,
+        lastDecision: PB._lastDecision || null,
+        resolvedLang: PB._resolvedLang || "en",
+        baseLang: PB._baseLang || "en",
+        usedFallback: PB._usedFallback || false,
+        availableLangs: PB._currentSchema && PB._currentSchema.localization
+          ? PB._currentSchema.localization.enabledLangs
+          : ["en"]
+      };
     },
+
     reset: function () {
       try {
         localStorage.clear();
@@ -1120,6 +1125,10 @@
       } catch (e) {
         console.error("[PB] Failed to clear storage", e);
       }
+    },
+
+    trigger: function (popupId) {
+      window.dispatchEvent(new CustomEvent("pb:trigger", { detail: { popupId } }));
     },
   };
 

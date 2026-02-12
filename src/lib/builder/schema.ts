@@ -122,6 +122,24 @@ export type FrequencyConfig = {
   perCampaign: boolean;
 };
 
+export type LocalizationSettings = {
+  baseLang: string; // Default: "en"
+  enabledLangs: string[]; // Default: ["en"]
+  translations: {
+    [lang: string]: {
+      blocks: {
+        [blockId: string]: {
+          // Only translatable text fields
+          text?: string;
+          label?: string;
+          placeholder?: string;
+          alt?: string;
+        };
+      };
+    };
+  };
+};
+
 export type PopupSchemaV2 = {
   schemaVersion: 2;
   blocks: PopupBlock[];
@@ -132,6 +150,7 @@ export type PopupSchemaV2 = {
   triggersMode?: "any" | "all";
   frequency: FrequencyConfig;
   targeting: TargetingRule[];
+  localization?: LocalizationSettings; // Optional for backward compatibility
 };
 
 export type PresetKey =

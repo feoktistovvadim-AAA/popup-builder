@@ -8,12 +8,15 @@ import BlockList from "@/components/builder/BlockList";
 import BlockPalette from "@/components/builder/BlockPalette";
 import InspectorPanel from "@/components/builder/InspectorPanel";
 import PreviewCanvas from "@/components/builder/PreviewCanvas";
+import LanguageSelector from "@/components/builder/LanguageSelector";
+import ManageLanguagesModal from "@/components/builder/ManageLanguagesModal";
 import {
   BlockType,
   PopupBlock,
   PopupSchemaV2,
   createEmptySchema,
 } from "@/lib/builder/schema";
+import { DEFAULT_LOCALIZATION } from "@/lib/builder/localization";
 
 type PopupBuilderProps = {
   popupId: string;
@@ -112,6 +115,17 @@ export default function PopupBuilder({
   const [showPresetModal, setShowPresetModal] = useState(false);
   const [presetName, setPresetName] = useState("");
   const [presetDescription, setPresetDescription] = useState("");
+
+  // Language state
+  const [currentLang, setCurrentLang] = useState<string>(
+    schema.localization?.baseLang || "en"
+  );
+  const [showManageLanguages, setShowManageLanguages] = useState(false);
+
+  // Initialize localization if missing
+  if (!schema.localization) {
+    schema.localization = DEFAULT_LOCALIZATION;
+  }
   const [presetSaving, setPresetSaving] = useState(false);
 
   const selectedBlock = schema.blocks.find((block) => block.id === selectedBlockId) ?? null;
@@ -156,6 +170,21 @@ export default function PopupBuilder({
     }
 
     setMessage(publish ? "Popup published." : "Draft saved.");
+  };
+
+  const handleLanguagesUpdate = (enabledLangs: string[]) => {
+    setSchema((prev) => ({
+      ...prev,
+      localization: {
+        ...prev.localization!,
+        enabledLangs,
+      },
+    }));
+
+    // If current language was removed, switch to base language
+    if (!enabledLangs.includes(currentLang)) {
+      setCurrentLang(schema.localization?.baseLang || "en");
+    }
   };
 
   const savePreset = async () => {
@@ -225,6 +254,12 @@ export default function PopupBuilder({
               Mobile
             </button>
           </div>
+          <LanguageSelector
+            currentLang={currentLang}
+            enabledLangs={schema.localization?.enabledLangs || ["en"]}
+            onLanguageChange={setCurrentLang}
+            onManageLanguages={() => setShowManageLanguages(true)}
+          />
           <button
             className="hidden rounded border border-black/10 px-3 py-1.5 text-xs font-medium text-black/80 hover:bg-black/[.04] disabled:opacity-60 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.06] sm:block lg:px-4 lg:py-2 lg:text-sm"
             type="button"
@@ -297,6 +332,7 @@ export default function PopupBuilder({
                   setSelectedBlockId(id);
                   setMobileTab("edit");
                 }}
+                currentLang={currentLang}
               />
             </div>
           </div>
@@ -503,6 +539,15 @@ export default function PopupBuilder({
           </div>
         </div>
       ) : null}
+
+      {/* Manage Languages Modal */}
+      <ManageLanguagesModal
+        isOpen={showManageLanguages}
+        baseLang={schema.localization?.baseLang || "en"}
+        enabledLangs={schema.localization?.enabledLangs || ["en"]}
+        onClose={() => setShowManageLanguages(false)}
+        onSave={handleLanguagesUpdate}
+      />
     </div>
   );
 }

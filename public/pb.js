@@ -7,12 +7,20 @@
     userContext: {},
     debug: false,
     pageviewCount: null,
-    debugInfo: {
-      popupsCount: 0,
-      popupId: null,
-      versionId: null,
-      lastTrigger: null,
-      blockedReason: null,
+    getDebugInfo: function () {
+      var info = {
+        version: "1.0.0",
+        currentPopup: PB._currentPopup || null,
+        lastTrigger: PB._lastTrigger || null,
+        lastDecision: PB._lastDecision || null,
+        resolvedLang: PB._resolvedLang || "en",
+        baseLang: PB._baseLang || "en",
+        usedFallback: PB._usedFallback || false,
+        availableLangs: PB._currentSchema && PB._currentSchema.localization
+          ? PB._currentSchema.localization.enabledLangs
+          : ["en"]
+      };
+      return info;
     },
   };
   var bootCache = null;
@@ -705,12 +713,93 @@
     pushEventToDataLayer("pb_" + type, payload);
   }
 
+  /**
+   * Normalize language code (ru-RU -> ru, en-US -> en)
+   */
+  function normalizeLanguage(lang) {
+    if (!lang) return "en";
+    return lang.split("-")[0].toLowerCase();
+  }
+
+  /**
+   * Detect user language from multiple sources
+   * Priority: pbSettings.lang > html lang > navigator.language
+   */
+  function detectUserLanguage() {
+    // 1. Explicit setting in pbSettings
+    if (window.pbSettings && window.pbSettings.lang) {
+      return normalizeLanguage(window.pbSettings.lang);
+    }
+
+    // 2. HTML lang attribute
+    var htmlLang = document.documentElement.lang;
+    if (htmlLang) {
+      return normalizeLanguage(htmlLang);
+    }
+
+    // 3. Browser language
+    if (navigator.language) {
+      return normalizeLanguage(navigator.language);
+    }
+
+    return "en"; // fallback
+  }
+
+  /**
+   * Apply translations to schema for target language
+   */
+  function applyTranslations(schema, targetLang) {
+    if (!schema.localization) {
+      return schema;
+    }
+
+    var loc = schema.localization;
+    var baseLang = loc.baseLang || "en";
+
+    // If target is base language or no translations exist, return as-is
+    if (targetLang === baseLang || !loc.translations || !loc.translations[targetLang]) {
+      return schema;
+    }
+
+    // Clone schema to avoid mutations
+    var translated = JSON.parse(JSON.stringify(schema));
+    var langTranslations = loc.translations[targetLang].blocks || {};
+
+    // Apply translations to blocks
+    translated.blocks.forEach(function (block) {
+      var blockTrans = langTranslations[block.id];
+      if (blockTrans) {
+        Object.keys(blockTrans).forEach(function (key) {
+          block.props[key] = blockTrans[key];
+        });
+      }
+    });
+
+    return translated;
+  }
+
   function renderPopup(popup) {
     if (document.getElementById("pb-root")) {
       debugLog("block renderPopup: already exists", { popupId: popup.popupId });
       return;
     }
     var schema = popup.schema;
+
+    // Detect user language and apply translations
+    var userLang = detectUserLanguage();
+    var baseLang = schema.localization ? (schema.localization.baseLang || "en") : "en";
+    var usedFallback = userLang !== baseLang &&
+      (!schema.localization || !schema.localization.translations || !schema.localization.translations[userLang]);
+
+    // Apply translations
+    schema = applyTranslations(schema, userLang);
+
+    // Store for debug info
+    PB._resolvedLang = userLang;
+    PB._baseLang = baseLang;
+    PB._usedFallback = usedFallback;
+    PB._currentSchema = popup.schema; // Store original schema
+
     var host = document.createElement("div");
     host.id = "pb-root";
     document.body.appendChild(host);

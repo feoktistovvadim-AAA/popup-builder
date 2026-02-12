@@ -4,6 +4,7 @@ import { CSSProperties } from "react";
 import clsx from "clsx";
 
 import { PopupBlock, PopupSchemaV2 } from "@/lib/builder/schema";
+import { applyTranslations } from "@/lib/builder/localization";
 
 function renderBlock(block: PopupBlock, isSelected: boolean) {
   const commonClass = clsx(
@@ -131,12 +132,17 @@ export default function PreviewCanvas({
   schema,
   selectedBlockId,
   onSelectBlock,
+  currentLang = "en",
 }: {
   schema: PopupSchemaV2;
   selectedBlockId: string | null;
   onSelectBlock: (id: string) => void;
+  currentLang?: string;
 }) {
-  const layout = schema.template.layout;
+  // Apply translations for the current language
+  const translatedSchema = applyTranslations(schema, currentLang);
+
+  const layout = translatedSchema.template.layout;
   const closeButtonPlacement = layout.closeButtonPlacement || "card";
 
   const containerStyle: CSSProperties = {
@@ -203,7 +209,7 @@ export default function PreviewCanvas({
           ) : null}
 
           <div className="space-y-4">
-            {schema.blocks.map((block) => (
+            {translatedSchema.blocks.map((block) => (
               <div
                 key={block.id}
                 onClick={() => onSelectBlock(block.id)}
@@ -212,7 +218,7 @@ export default function PreviewCanvas({
                 {renderBlock(block, block.id === selectedBlockId)}
               </div>
             ))}
-            {schema.blocks.length === 0 ? (
+            {translatedSchema.blocks.length === 0 ? (
               <p className="text-sm text-white/60">
                 Add blocks to see a live preview.
               </p>

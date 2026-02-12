@@ -16,7 +16,7 @@ import {
   PopupSchemaV2,
   createEmptySchema,
 } from "@/lib/builder/schema";
-import { DEFAULT_LOCALIZATION } from "@/lib/builder/localization";
+import { DEFAULT_LOCALIZATION, getTranslatableFields } from "@/lib/builder/localization";
 
 type PopupBuilderProps = {
   popupId: string;
@@ -131,12 +131,55 @@ export default function PopupBuilder({
   const selectedBlock = schema.blocks.find((block) => block.id === selectedBlockId) ?? null;
 
   const updateBlock = (id: string, nextProps: Record<string, unknown>) => {
-    setSchema((prev) => ({
-      ...prev,
-      blocks: prev.blocks.map((block) =>
-        block.id === id ? { ...block, props: nextProps } : block
-      ),
-    }));
+    const baseLang = schema.localization?.baseLang || "en";
+
+    // If editing base language, update the base schema
+    if (currentLang === baseLang) {
+      setSchema((prev) => ({
+        ...prev,
+        blocks: prev.blocks.map((block) =>
+          block.id === id ? { ...block, props: nextProps } : block
+        ),
+      }));
+    } else {
+      // If editing non-base language, store only translatable fields as overrides
+      setSchema((prev) => {
+        const block = prev.blocks.find((b) => b.id === id);
+        if (!block) return prev;
+
+        const translatableFields = getTranslatableFields(block.type);
+        const translationOverrides: Record<string, unknown> = {};
+
+        // Extract only translatable fields from nextProps
+        translatableFields.forEach((field) => {
+          if (field in nextProps) {
+            translationOverrides[field] = nextProps[field];
+          }
+        });
+
+        // Update translations object
+        const newTranslations = { ...prev.localization!.translations };
+        if (!newTranslations[currentLang]) {
+          newTranslations[currentLang] = { blocks: {} };
+        }
+        if (!newTranslations[currentLang].blocks) {
+          newTranslations[currentLang].blocks = {};
+        }
+
+        newTranslations[currentLang].blocks[id] = {
+          ...newTranslations[currentLang].blocks[id],
+          ...translationOverrides,
+        };
+
+        return {
+          ...prev,
+          localization: {
+            ...prev.localization!,
+            translations: newTranslations,
+          },
+        };
+      });
+    }
   };
 
   const updateLayout = (layout: PopupSchemaV2["template"]["layout"]) => {

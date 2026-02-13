@@ -1034,6 +1034,26 @@
       renderDebugHud();
       setupTriggers(resolvedPopup);
     });
+
+    // Listen for manual trigger events (PB.trigger("popupName"))
+    window.addEventListener("pb:trigger", function onManualTrigger(event) {
+      var detail = event.detail || {};
+      var targetId = detail.popupId;
+      if (!targetId) return;
+      var found = popups.find(function (p) {
+        return p.name === targetId || p.id === targetId;
+      });
+      if (!found) {
+        debugLog("pb:trigger popup not found", { targetId: targetId });
+        return;
+      }
+      var schema = found.rules || found.schema || {};
+      renderPopup({
+        popupId: found.id,
+        versionId: found.versionId,
+        schema: schema,
+      });
+    });
   }
 
   window.PB = {

@@ -79,7 +79,7 @@ test.describe('Popup Triggers', () => {
     });
 
     test('should fire exit_intent trigger', async ({ page }) => {
-        await initPB(page, '?exit=true');
+        await initPB(page, '?exit_intent=true');
         // Popup name: 'exit-popup'
         const popup = page.locator('text=Exit Popup');
 
@@ -124,6 +124,7 @@ test.describe('Popup Triggers', () => {
             // @ts-ignore
             window.PB.init({ siteId: id, debug: true });
         }, siteId);
+        await page.waitForSelector('#pb-debug-hud');
         await expect(page.locator('text=Pageview Popup')).not.toBeVisible();
 
         // View 3 (reload)
@@ -132,6 +133,7 @@ test.describe('Popup Triggers', () => {
             // @ts-ignore
             window.PB.init({ siteId: id, debug: true });
         }, siteId);
+        await page.waitForSelector('#pb-debug-hud');
 
         await expect(page.locator('text=Pageview Popup')).toBeVisible();
     });

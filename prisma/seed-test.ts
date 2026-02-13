@@ -47,7 +47,7 @@ async function main() {
 
     // Exit Intent
     await createPopup(site.id, 'exit-popup', {
-        targeting: [{ type: 'url_contains', value: 'exit=true' }],
+        targeting: [{ type: 'url_contains', value: 'exit_intent=true' }],
         triggers: [{ type: 'exit_intent_desktop', enabled: true, params: { sensitivity: 10 } }],
         blocks: [{ type: 'text', props: { text: 'Exit Popup' } }],
     });
@@ -81,6 +81,7 @@ async function main() {
 
     // Device Match (mobile - should not show on desktop tests)
     await createPopup(site.id, 'mobile-popup', {
+        targeting: [{ type: 'url_contains', value: 'mobile=true' }],
         triggers: [{ type: 'device_is', enabled: true, params: { device: 'mobile' } }],
         blocks: [{ type: 'text', props: { text: 'Mobile Popup' } }],
     });
@@ -105,6 +106,34 @@ async function main() {
             }
         }],
         blocks: [{ type: 'text', props: { text: 'Smart Exit Popup' } }],
+    });
+
+    // Multi-Language Popup (for localization tests)
+    await createPopup(site.id, 'multilang-popup', {
+        targeting: [{ type: 'url_contains', value: 'multilang=true' }],
+        triggers: [{ type: 'after_seconds', enabled: true, params: { seconds: 9999 } }],
+        blocks: [
+            { type: 'text', id: 'heading', props: { text: 'Welcome Bonus' } },
+            { type: 'button', id: 'cta', props: { label: 'Claim Now' } },
+        ],
+        localization: {
+            baseLang: 'en',
+            enabledLangs: ['en', 'ru', 'es'],
+            translations: {
+                ru: {
+                    blocks: {
+                        heading: { text: 'Приветственный бонус' },
+                        cta: { label: 'Получить сейчас' },
+                    },
+                },
+                es: {
+                    blocks: {
+                        heading: { text: 'Bono de bienvenida' },
+                        cta: { label: 'Reclamar ahora' },
+                    },
+                },
+            },
+        },
     });
 
     // Click Event Test Popup (with button)

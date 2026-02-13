@@ -54,6 +54,7 @@ export async function GET(request: Request) {
       if (!version) return null;
       return {
         id: popup.id,
+        name: popup.name,
         versionId: version.id,
         status: "active",
         rules: version.schema,

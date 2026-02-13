@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { ReactElement } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import clsx from "clsx";
 
 import OrgSwitcher from "@/components/admin/OrgSwitcher";
@@ -80,6 +81,7 @@ export default function AdminSidebar({
     organization: { id: string; name: string; slug: string };
   }>;
 }) {
+  const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     const stored = window.localStorage.getItem("pb_admin_sidebar");
@@ -97,21 +99,27 @@ export default function AdminSidebar({
     });
   };
 
+  const isActive = (href: string) => {
+    if (href === "/admin") return pathname === "/admin";
+    return pathname.startsWith(href);
+  };
+
   return (
     <aside
       className={clsx(
-        "hidden md:flex shrink-0 flex-col border-r border-black/10 bg-white dark:border-white/10 dark:bg-black",
-        collapsed ? "w-16" : "w-64"
+        "hidden md:flex shrink-0 flex-col border-r bg-white dark:bg-black transition-all duration-200 ease-[var(--ease)]",
+        collapsed ? "w-16" : "w-60"
       )}
+      style={{ borderColor: "var(--border)" }}
     >
       <div className="flex items-center justify-between px-4 py-5">
-        <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-black text-white dark:bg-white dark:text-black">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black text-xs font-bold text-white dark:bg-white dark:text-black">
             PB
           </div>
           {!collapsed ? (
-            <div className="space-y-1">
-              <div className="text-sm font-semibold text-black dark:text-white">
+            <div className="space-y-0.5 overflow-hidden">
+              <div className="text-sm font-semibold text-black dark:text-white truncate">
                 Popup Builder
               </div>
               <OrgSwitcher activeOrgId={activeOrgId} memberships={memberships} />
@@ -119,37 +127,53 @@ export default function AdminSidebar({
           ) : null}
         </div>
         <button
-          className="rounded p-1 text-black/60 hover:bg-black/[.04] dark:text-white/60 dark:hover:bg-white/[.06]"
+          className="rounded-md p-1.5 text-black/50 hover:bg-black/[.04] hover:text-black/80 dark:text-white/50 dark:hover:bg-white/[.06] dark:hover:text-white/80 transition-colors"
           onClick={toggle}
           type="button"
-          aria-label="Toggle sidebar"
+          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
-            <path
-              d="M7 7h10M7 12h10M7 17h10"
-              stroke="currentColor"
-              strokeWidth="1.5"
-            />
+            {collapsed ? (
+              <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            ) : (
+              <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            )}
           </svg>
         </button>
       </div>
 
-      <nav className="flex-1 px-3 pb-6">
-        <ul className="space-y-1 text-sm">
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <Link
-                className={clsx(
-                  "flex items-center gap-3 rounded px-3 py-2 text-black/80 hover:bg-black/[.04] hover:text-black dark:text-white/80 dark:hover:bg-white/[.08] dark:hover:text-white",
-                  collapsed && "justify-center"
-                )}
-                href={item.href}
-              >
-                {icons[item.icon]}
-                {!collapsed ? <span>{item.label}</span> : null}
-              </Link>
-            </li>
-          ))}
+      <nav className="flex-1 px-2 pb-6">
+        <ul className="space-y-0.5 text-[13px]">
+          {navItems.map((item) => {
+            const active = isActive(item.href);
+            return (
+              <li key={item.href}>
+                <Link
+                  className={clsx(
+                    "group relative flex items-center gap-3 rounded-md px-3 py-2 font-medium transition-colors",
+                    active
+                      ? "bg-black/[.06] text-black dark:bg-white/[.1] dark:text-white"
+                      : "text-black/60 hover:bg-black/[.04] hover:text-black dark:text-white/60 dark:hover:bg-white/[.06] dark:hover:text-white",
+                    collapsed && "justify-center px-0"
+                  )}
+                  href={item.href}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <span className={clsx("shrink-0", active ? "text-black dark:text-white" : "text-black/50 dark:text-white/50")}>
+                    {icons[item.icon]}
+                  </span>
+                  {!collapsed ? <span>{item.label}</span> : null}
+
+                  {/* Tooltip for collapsed state */}
+                  {collapsed ? (
+                    <span className="pointer-events-none absolute left-full ml-2 hidden rounded-md bg-black px-2 py-1 text-xs font-medium text-white shadow-lg group-hover:block dark:bg-white dark:text-black whitespace-nowrap z-50">
+                      {item.label}
+                    </span>
+                  ) : null}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </aside>

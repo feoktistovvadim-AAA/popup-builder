@@ -45,7 +45,7 @@ export default function TeamManager({
     setLoading(false);
     if (!response.ok) {
       const data = await response.json();
-      setError(data?.error ?? "Failed to invite member.");
+      setError(data?.error ?? "Не удалось пригласить участника.");
       return;
     }
 
@@ -79,7 +79,7 @@ export default function TeamManager({
     <div className="space-y-6">
       <div className="rounded-lg border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-black">
         <h2 className="text-lg font-semibold text-black dark:text-white">
-          Invite teammate
+          Пригласить участника
         </h2>
         <form onSubmit={sendInvite} className="mt-4 flex flex-wrap gap-3">
           <input
@@ -96,16 +96,16 @@ export default function TeamManager({
               setRole(event.target.value as "ADMIN" | "EDITOR" | "VIEWER")
             }
           >
-            <option value="ADMIN">Admin</option>
-            <option value="EDITOR">Editor</option>
-            <option value="VIEWER">Viewer</option>
+            <option value="ADMIN">Администратор</option>
+            <option value="EDITOR">Редактор</option>
+            <option value="VIEWER">Наблюдатель</option>
           </select>
           <button
             className="rounded-lg bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90 disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-white/90"
             type="submit"
             disabled={loading}
           >
-            {loading ? "Inviting..." : "Send invite"}
+            {loading ? "Отправка..." : "Отправить"}
           </button>
         </form>
         {error ? (
@@ -117,7 +117,7 @@ export default function TeamManager({
 
       <div className="rounded-lg border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-black">
         <h2 className="text-lg font-semibold text-black dark:text-white">
-          Team members
+          Участники команды
         </h2>
         <div className="mt-4 space-y-3 text-sm">
           {memberships.map((member) => (
@@ -127,7 +127,7 @@ export default function TeamManager({
             >
               <div>
                 <div className="font-medium text-black dark:text-white">
-                  {member.user.name ?? member.user.email ?? "Unnamed user"}
+                  {member.user.name ?? member.user.email ?? "Без имени"}
                 </div>
                 <div className="text-black/60 dark:text-white/60">
                   {member.user.email}
@@ -154,7 +154,7 @@ export default function TeamManager({
                   onClick={() => removeMember(member.id)}
                   disabled={member.role === "OWNER"}
                 >
-                  Remove
+                  Удалить
                 </button>
               </div>
             </div>
@@ -164,11 +164,11 @@ export default function TeamManager({
 
       <div className="rounded-lg border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-black">
         <h2 className="text-lg font-semibold text-black dark:text-white">
-          Pending invites
+          Ожидающие приглашения
         </h2>
         {invites.length === 0 ? (
           <p className="mt-3 text-sm text-black/60 dark:text-white/60">
-            No pending invites.
+            Нет ожидающих приглашений.
           </p>
         ) : (
           <div className="mt-4 space-y-2 text-sm">
@@ -182,11 +182,11 @@ export default function TeamManager({
                     {invite.email}
                   </div>
                   <div className="text-black/60 dark:text-white/60">
-                    Role: {invite.role} · {invite.status}
+                    Роль: {invite.role} · {invite.status}
                   </div>
                 </div>
                 <span className="rounded bg-black/5 px-3 py-1 text-xs text-black/70 dark:bg-white/10 dark:text-white/70">
-                  Pending
+                  Ожидание
                 </span>
               </div>
             ))}

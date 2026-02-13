@@ -13,23 +13,23 @@ const targetingOptions: TargetingRule["type"][] = [
 ];
 
 const targetingLabels: Record<string, string> = {
-    vip_level_is: "VIP Level",
-    balance_lt: "Balance Less Than",
-    device_is: "Device Type",
-    url_contains: "URL Contains",
-    new_vs_returning: "New vs Returning",
-    sessions_count: "Sessions Count",
-    referrer_contains: "Referrer Contains",
+    vip_level_is: "VIP уровень",
+    balance_lt: "Баланс меньше",
+    device_is: "Тип устройства",
+    url_contains: "URL содержит",
+    new_vs_returning: "Новые / вернувшиеся",
+    sessions_count: "Кол-во сессий",
+    referrer_contains: "Реферер содержит",
 };
 
 const targetingDescriptions: Record<string, string> = {
-    vip_level_is: "Target users with a specific VIP level",
-    balance_lt: "Target users with balance below a threshold",
-    device_is: "Target desktop or mobile users",
-    url_contains: "Target users on pages matching a URL pattern",
-    new_vs_returning: "Target new or returning visitors",
-    sessions_count: "Target users based on session count",
-    referrer_contains: "Target users from specific referrer",
+    vip_level_is: "Таргетинг по VIP уровню",
+    balance_lt: "Таргетинг по балансу ниже порога",
+    device_is: "Таргетинг на десктоп или мобайл",
+    url_contains: "Таргетинг по совпадению URL",
+    new_vs_returning: "Таргетинг новых или вернувшихся посетителей",
+    sessions_count: "Таргетинг по кол-ву сессий",
+    referrer_contains: "Таргетинг по рефереру",
 };
 
 const inputCls = "w-full rounded-md border px-2.5 py-1.5 text-sm text-black outline-none transition-colors focus:border-black/30 dark:text-white dark:focus:border-white/30";
@@ -46,7 +46,7 @@ export default function TargetingTab({
         <div className="space-y-3">
             {targeting.length === 0 && (
                 <p className="text-xs text-black/40 dark:text-white/40 py-4 text-center">
-                    No targeting rules. Add one to control who sees this popup.
+                    Нет правил таргетинга. Добавьте правило, чтобы управлять, кто видит попап.
                 </p>
             )}
 
@@ -81,7 +81,7 @@ export default function TargetingTab({
                         <button
                             className="shrink-0 rounded-md p-1.5 text-black/30 hover:bg-red-50 hover:text-red-600 dark:text-white/30 dark:hover:bg-red-500/10 dark:hover:text-red-400 transition-colors"
                             type="button"
-                            title="Remove rule"
+                            title="Удалить правило"
                             onClick={() => {
                                 const next = targeting.filter((_, idx) => idx !== index);
                                 onUpdateTargeting(next);
@@ -97,7 +97,7 @@ export default function TargetingTab({
                     <div className="space-y-2">
                         {"value" in rule && rule.type === "new_vs_returning" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Visitor Type
+                                Тип посетителя
                                 <select className={inputCls} style={inputStyle}
                                     value={rule.value}
                                     onChange={(e) => {
@@ -105,15 +105,15 @@ export default function TargetingTab({
                                         next[index] = { ...rule, value: e.target.value as "new" | "returning" } as TargetingRule;
                                         onUpdateTargeting(next);
                                     }}>
-                                    <option value="new">New</option>
-                                    <option value="returning">Returning</option>
+                                    <option value="new">Новый</option>
+                                    <option value="returning">Вернувшийся</option>
                                 </select>
                             </label>
                         )}
 
                         {"value" in rule && rule.type !== "new_vs_returning" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Value
+                                Значение
                                 <input className={inputCls} style={inputStyle}
                                     value={rule.value}
                                     onChange={(e) => {
@@ -126,7 +126,7 @@ export default function TargetingTab({
 
                         {"amount" in rule && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Amount
+                                Сумма
                                 <input className={inputCls} style={inputStyle} type="number"
                                     value={rule.amount}
                                     onChange={(e) => {
@@ -139,7 +139,7 @@ export default function TargetingTab({
 
                         {"device" in rule && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Device
+                                Устройство
                                 <select className={inputCls} style={inputStyle}
                                     value={rule.device}
                                     onChange={(e) => {
@@ -155,7 +155,7 @@ export default function TargetingTab({
 
                         {"count" in rule && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Count
+                                Количество
                                 <input className={inputCls} style={inputStyle} type="number"
                                     value={rule.count}
                                     onChange={(e) => {
@@ -175,7 +175,7 @@ export default function TargetingTab({
                 type="button"
                 onClick={() => onUpdateTargeting([...targeting, { type: "url_contains", value: "" }])}
             >
-                + Add targeting rule
+                + Добавить правило
             </button>
         </div>
     );

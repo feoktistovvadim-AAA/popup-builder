@@ -33,7 +33,7 @@ export default function CreatePopupForm({ sites }: { sites: SiteOption[] }) {
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data?.error ?? "Failed to create popup.");
+      setError(data?.error ?? "Не удалось создать попап.");
       return;
     }
 
@@ -46,19 +46,19 @@ export default function CreatePopupForm({ sites }: { sites: SiteOption[] }) {
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <label className="text-xs font-medium text-black/70 dark:text-white/70">
-            Popup name
+            Название попапа
           </label>
           <input
             className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white md:text-sm"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="Welcome Bonus"
+            placeholder="Приветственный бонус"
             required
           />
         </div>
         <div>
           <label className="text-xs font-medium text-black/70 dark:text-white/70">
-            Site
+            Сайт
           </label>
           <select
             className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-base text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white md:text-sm"
@@ -81,7 +81,7 @@ export default function CreatePopupForm({ sites }: { sites: SiteOption[] }) {
         type="submit"
         disabled={loading || !siteId}
       >
-        {loading ? "Creating..." : "Create popup"}
+        {loading ? "Создание..." : "Создать попап"}
       </button>
     </form>
   );

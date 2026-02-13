@@ -20,7 +20,7 @@ export default function OrgSwitcher({
   if (memberships.length === 0) {
     return (
       <div className="text-xs text-black/60 dark:text-white/60">
-        No organization
+        Нет организации
       </div>
     );
   }
@@ -32,7 +32,7 @@ export default function OrgSwitcher({
   return (
     <div className="space-y-1">
       <div className="text-xs text-black/50 dark:text-white/50">
-        Organization
+        Организация
       </div>
       {memberships.length === 1 ? (
         <div className="text-sm font-medium text-black dark:text-white">

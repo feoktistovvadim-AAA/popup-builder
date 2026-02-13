@@ -30,7 +30,7 @@ export default function SignupPage() {
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data?.error ?? "Registration failed.");
+      setError(data?.error ?? "Ошибка регистрации.");
       setLoading(false);
       return;
     }
@@ -46,16 +46,16 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-black">
       <div className="w-full max-w-md rounded-xl border border-black/10 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900">
         <h1 className="text-2xl font-semibold text-black dark:text-white">
-          Create your account
+          Создание аккаунта
         </h1>
         <p className="mt-2 text-sm text-black/60 dark:text-white/60">
-          Set up your organization in minutes.
+          Настройте организацию за несколько минут.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>
             <label className="text-xs font-medium text-black/70 dark:text-white/70">
-              Full name
+              Имя
             </label>
             <input
               className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -66,7 +66,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="text-xs font-medium text-black/70 dark:text-white/70">
-              Organization name
+              Название организации
             </label>
             <input
               className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -77,7 +77,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="text-xs font-medium text-black/70 dark:text-white/70">
-              Email
+              Эл. почта
             </label>
             <input
               className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -89,7 +89,7 @@ export default function SignupPage() {
           </div>
           <div>
             <label className="text-xs font-medium text-black/70 dark:text-white/70">
-              Password
+              Пароль
             </label>
             <input
               className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -108,14 +108,14 @@ export default function SignupPage() {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Creating account..." : "Create account"}
+            {loading ? "Создание..." : "Создать аккаунт"}
           </button>
         </form>
 
         <p className="mt-6 text-sm text-black/60 dark:text-white/60">
-          Already have an account?{" "}
+          Уже есть аккаунт?{" "}
           <Link className="text-black underline dark:text-white" href="/login">
-            Sign in
+            Войти
           </Link>
         </p>
       </div>

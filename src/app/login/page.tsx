@@ -28,7 +28,7 @@ function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Invalid email or password.");
+      setError("Неверный email или пароль.");
       return;
     }
 
@@ -39,10 +39,10 @@ function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 dark:bg-black">
       <div className="w-full max-w-md rounded-xl border border-black/10 bg-white p-8 shadow-sm dark:border-white/10 dark:bg-zinc-900">
         <h1 className="text-2xl font-semibold text-black dark:text-white">
-          Sign in
+          Вход
         </h1>
         <p className="mt-2 text-sm text-black/60 dark:text-white/60">
-          Access your Popup Builder workspace.
+          Войдите в рабочее пространство Popup Builder.
         </p>
 
         <button
@@ -50,7 +50,7 @@ function LoginForm() {
           className="mt-6 w-full rounded-lg border border-black/10 px-4 py-2 text-sm font-medium text-black hover:bg-black/[.04] dark:border-white/10 dark:text-white dark:hover:bg-white/[.06]"
           type="button"
         >
-          Continue with Google
+          Продолжить с Google
         </button>
 
         <div className="my-6 border-t border-black/10 dark:border-white/10" />
@@ -58,7 +58,7 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <label className="text-xs font-medium text-black/70 dark:text-white/70">
-              Email
+              Эл. почта
             </label>
             <input
               className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -70,7 +70,7 @@ function LoginForm() {
           </div>
           <div>
             <label className="text-xs font-medium text-black/70 dark:text-white/70">
-              Password
+              Пароль
             </label>
             <input
               className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -88,14 +88,14 @@ function LoginForm() {
             type="submit"
             disabled={loading}
           >
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? "Вход..." : "Войти"}
           </button>
         </form>
 
         <p className="mt-6 text-sm text-black/60 dark:text-white/60">
-          New here?{" "}
+          Впервые здесь?{" "}
           <Link className="text-black underline dark:text-white" href="/signup">
-            Create an account
+            Создать аккаунт
           </Link>
         </p>
       </div>

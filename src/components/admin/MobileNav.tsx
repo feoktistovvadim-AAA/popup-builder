@@ -109,7 +109,7 @@ export default function MobileNav({
                             <div className="flex items-center gap-3 px-2">
                                 <div className="h-8 w-8 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500" />
                                 <div>
-                                    <p className="text-sm font-medium text-black dark:text-white">Admin User</p>
+                                    <p className="text-sm font-medium text-black dark:text-white">Администратор</p>
                                     <p className="text-xs text-black/40 dark:text-white/40">admin@example.com</p>
                                 </div>
                             </div>

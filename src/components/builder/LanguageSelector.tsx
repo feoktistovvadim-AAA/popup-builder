@@ -66,8 +66,8 @@ export default function LanguageSelector({
                                                 setIsOpen(false);
                                             }}
                                             className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors ${lang === currentLang
-                                                    ? "bg-purple-500 text-white"
-                                                    : "hover:bg-black/5 dark:hover:bg-white/5"
+                                                ? "bg-purple-500 text-white"
+                                                : "hover:bg-black/5 dark:hover:bg-white/5"
                                                 }`}
                                             type="button"
                                         >
@@ -120,7 +120,7 @@ export default function LanguageSelector({
                                             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
                                         />
                                     </svg>
-                                    Manage Languages
+                                    Управление языками
                                 </button>
                             </div>
                         </div>

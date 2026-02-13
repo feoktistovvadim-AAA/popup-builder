@@ -9,11 +9,11 @@ import clsx from "clsx";
 import OrgSwitcher from "@/components/admin/OrgSwitcher";
 
 export const navItems = [
-  { href: "/admin", label: "Overview", icon: "dashboard" },
-  { href: "/admin/sites", label: "Sites", icon: "globe" },
-  { href: "/admin/popups", label: "Popups", icon: "layers" },
-  { href: "/admin/team", label: "Team", icon: "users" },
-  { href: "/admin/settings", label: "Settings", icon: "settings" },
+  { href: "/admin", label: "Обзор", icon: "dashboard" },
+  { href: "/admin/sites", label: "Сайты", icon: "globe" },
+  { href: "/admin/popups", label: "Попапы", icon: "layers" },
+  { href: "/admin/team", label: "Команда", icon: "users" },
+  { href: "/admin/settings", label: "Настройки", icon: "settings" },
 ] as const;
 
 export const icons: Record<string, ReactElement> = {
@@ -130,7 +130,7 @@ export default function AdminSidebar({
           className="rounded-md p-1.5 text-black/50 hover:bg-black/[.04] hover:text-black/80 dark:text-white/50 dark:hover:bg-white/[.06] dark:hover:text-white/80 transition-colors"
           onClick={toggle}
           type="button"
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={collapsed ? "Развернуть" : "Свернуть"}
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
             {collapsed ? (

@@ -3,11 +3,11 @@
 import { BlockType } from "@/lib/builder/schema";
 
 const blockOptions: { type: BlockType; label: string }[] = [
-  { type: "headline", label: "Headline" },
-  { type: "text", label: "Text" },
-  { type: "button", label: "Button" },
-  { type: "image", label: "Image" },
-  { type: "spacer", label: "Spacer" },
+  { type: "headline", label: "Заголовок" },
+  { type: "text", label: "Текст" },
+  { type: "button", label: "Кнопка" },
+  { type: "image", label: "Изображение" },
+  { type: "spacer", label: "Отступ" },
 ];
 
 export default function BlockPalette({
@@ -18,7 +18,7 @@ export default function BlockPalette({
   return (
     <div className="space-y-2">
       <h3 className="text-xs font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-        Add blocks
+        Добавить блоки
       </h3>
       <div className="space-y-2">
         {blockOptions.map((option) => (

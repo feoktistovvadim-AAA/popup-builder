@@ -29,10 +29,10 @@ export default async function AdminPage() {
     <div className="space-y-6 animate-fade-in">
       <div>
         <h1 className="text-2xl font-semibold text-black dark:text-white">
-          Overview
+          Обзор
         </h1>
         <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-          Welcome back{organization ? `, ${organization.name}` : ""}.
+          Добро пожаловать{organization ? `, ${organization.name}` : ""}.
         </p>
       </div>
 
@@ -47,7 +47,7 @@ export default async function AdminPage() {
             </div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                Sites
+                Сайты
               </div>
               <div className="text-2xl font-semibold text-black dark:text-white">
                 {sitesCount}
@@ -64,7 +64,7 @@ export default async function AdminPage() {
             </div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                Popups
+                Попапы
               </div>
               <div className="text-2xl font-semibold text-black dark:text-white">
                 {popupsCount}
@@ -81,12 +81,12 @@ export default async function AdminPage() {
             </div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                Status
+                Статус
               </div>
               <div className="text-sm font-medium text-black/70 dark:text-white/70">
                 {sitesCount === 0
-                  ? "Add a site to start"
-                  : "Ready to build"}
+                  ? "Добавьте сайт"
+                  : "Готово к работе"}
               </div>
             </div>
           </div>
@@ -95,7 +95,7 @@ export default async function AdminPage() {
 
       <div className="rounded-xl p-6" style={{ border: "1px solid var(--border)", background: "var(--surface)" }}>
         <h2 className="text-sm font-semibold text-black dark:text-white">
-          Quick actions
+          Быстрые действия
         </h2>
         <div className="mt-4 flex flex-wrap gap-2 text-sm">
           <Link
@@ -103,21 +103,21 @@ export default async function AdminPage() {
             style={{ border: "1px solid var(--border)" }}
             href="/admin/sites"
           >
-            Create a site
+            Создать сайт
           </Link>
           <Link
             className="rounded-lg px-4 py-2 text-xs font-medium text-black/70 hover:text-black dark:text-white/70 dark:hover:text-white transition-colors card-hover"
             style={{ border: "1px solid var(--border)" }}
             href="/admin/popups"
           >
-            Create a popup
+            Создать попап
           </Link>
           <Link
             className="rounded-lg px-4 py-2 text-xs font-medium text-black/70 hover:text-black dark:text-white/70 dark:hover:text-white transition-colors card-hover"
             style={{ border: "1px solid var(--border)" }}
             href="/admin/team"
           >
-            Invite teammates
+            Пригласить команду
           </Link>
         </div>
       </div>

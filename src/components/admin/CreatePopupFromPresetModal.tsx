@@ -45,7 +45,7 @@ export default function CreatePopupFromPresetModal({
         setPresetId(data.presets?.[0]?.id ?? "");
       })
       .catch(() => {
-        setError("Failed to load presets.");
+        setError("Не удалось загрузить пресеты.");
       })
       .finally(() => setLoading(false));
   };
@@ -71,7 +71,7 @@ export default function CreatePopupFromPresetModal({
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data?.error ?? "Failed to create popup.");
+      setError(data?.error ?? "Не удалось создать попап.");
       return;
     }
 
@@ -87,7 +87,7 @@ export default function CreatePopupFromPresetModal({
         type="button"
         onClick={openModal}
       >
-        From preset
+        Из пресета
       </button>
 
       {open ? (
@@ -96,10 +96,10 @@ export default function CreatePopupFromPresetModal({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-black dark:text-white">
-                  Create popup from preset
+                  Создать попап из пресета
                 </h2>
                 <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-                  Select a preset and choose what to import.
+                  Выберите пресет и укажите, что импортировать.
                 </p>
               </div>
               <button
@@ -115,19 +115,19 @@ export default function CreatePopupFromPresetModal({
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <div>
                 <label className="text-xs font-medium text-black/70 dark:text-white/70">
-                  Popup name
+                  Название попапа
                 </label>
                 <input
                   className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
                   value={name}
                   onChange={(event) => setName(event.target.value)}
-                  placeholder="Preset-based popup"
+                  placeholder="Попап на основе пресета"
                   required
                 />
               </div>
               <div>
                 <label className="text-xs font-medium text-black/70 dark:text-white/70">
-                  Site
+                  Сайт
                 </label>
                 <select
                   className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -154,7 +154,7 @@ export default function CreatePopupFromPresetModal({
                 disabled={loading || presets.length === 0}
               >
                 {presets.length === 0 ? (
-                  <option value="">No presets available</option>
+                  <option value="">Нет доступных пресетов</option>
                 ) : (
                   presets.map((preset) => (
                     <option key={preset.id} value={preset.id}>
@@ -172,7 +172,7 @@ export default function CreatePopupFromPresetModal({
                   checked={importDesign}
                   onChange={(event) => setImportDesign(event.target.checked)}
                 />
-                Import design (blocks + layout)
+                Импорт дизайна (блоки + макет)
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -180,7 +180,7 @@ export default function CreatePopupFromPresetModal({
                   checked={importTriggers}
                   onChange={(event) => setImportTriggers(event.target.checked)}
                 />
-                Import triggers
+                Импорт триггеров
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -188,7 +188,7 @@ export default function CreatePopupFromPresetModal({
                   checked={importTargeting}
                   onChange={(event) => setImportTargeting(event.target.checked)}
                 />
-                Import targeting
+                Импорт таргетинга
               </label>
               <label className="flex items-center gap-2">
                 <input
@@ -196,7 +196,7 @@ export default function CreatePopupFromPresetModal({
                   checked={importFrequency}
                   onChange={(event) => setImportFrequency(event.target.checked)}
                 />
-                Import frequency
+                Импорт частоты
               </label>
             </div>
 
@@ -212,7 +212,7 @@ export default function CreatePopupFromPresetModal({
                 type="button"
                 onClick={() => setOpen(false)}
               >
-                Cancel
+                Отмена
               </button>
               <button
                 className="rounded bg-black px-4 py-2 text-sm font-medium text-white hover:bg-black/90 disabled:opacity-60 dark:bg-white dark:text-black dark:hover:bg-white/90"
@@ -220,7 +220,7 @@ export default function CreatePopupFromPresetModal({
                 disabled={loading || !presetId || !siteId || !name}
                 onClick={handleCreate}
               >
-                {loading ? "Creating..." : "Create popup"}
+                {loading ? "Создание..." : "Создать попап"}
               </button>
             </div>
           </div>

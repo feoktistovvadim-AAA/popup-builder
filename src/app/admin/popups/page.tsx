@@ -10,33 +10,33 @@ export default async function AdminPopupsPage() {
   const [sites, popups] = await Promise.all([
     organizationId
       ? prisma.site.findMany({
-          where: { organizationId },
-          orderBy: { createdAt: "desc" },
-        })
+        where: { organizationId },
+        orderBy: { createdAt: "desc" },
+      })
       : [],
     organizationId
       ? prisma.popup.findMany({
-          where: { site: { organizationId } },
-          select: {
-            id: true,
-            name: true,
-            status: true,
-            site: {
-              select: {
-                name: true,
-                domain: true,
-              },
-            },
-            versions: {
-              select: {
-                version: true,
-              },
-              orderBy: { createdAt: "desc" },
-              take: 1,
+        where: { site: { organizationId } },
+        select: {
+          id: true,
+          name: true,
+          status: true,
+          site: {
+            select: {
+              name: true,
+              domain: true,
             },
           },
-          orderBy: { createdAt: "desc" },
-        })
+          versions: {
+            select: {
+              version: true,
+            },
+            orderBy: { createdAt: "desc" },
+            take: 1,
+          },
+        },
+        orderBy: { createdAt: "desc" },
+      })
       : [],
   ]);
 
@@ -44,20 +44,20 @@ export default async function AdminPopupsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-black dark:text-white">
-          Popups
+          Попапы
         </h1>
         <p className="mt-1 text-sm text-black/60 dark:text-white/60">
-          Build, preview, and publish popup campaigns.
+          Создавайте, просматривайте и публикуйте кампании.
         </p>
       </div>
 
       <div className="rounded-lg border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-black">
         <h2 className="text-lg font-semibold text-black dark:text-white">
-          Create a popup
+          Создать попап
         </h2>
         {sites.length === 0 ? (
           <p className="mt-3 text-sm text-black/60 dark:text-white/60">
-            Create a site first to attach a popup.
+            Сначала создайте сайт для привязки попапа.
           </p>
         ) : (
           <div className="mt-4 space-y-4">
@@ -68,7 +68,7 @@ export default async function AdminPopupsPage() {
 
       <div className="rounded-lg border border-black/10 bg-white p-6 dark:border-white/10 dark:bg-black">
         <h2 className="text-lg font-semibold text-black dark:text-white">
-          Your popups
+          Ваши попапы
         </h2>
         <PopupList popups={popups} />
       </div>

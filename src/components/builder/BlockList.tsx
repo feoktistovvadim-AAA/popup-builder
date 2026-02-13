@@ -60,7 +60,7 @@ function BlockListItem({
         className="rounded p-1 text-black/50 hover:bg-black/[.08] dark:text-white/50 dark:hover:bg-white/[.12]"
         type="button"
         onClick={onDelete}
-        aria-label="Delete block"
+        aria-label="Удалить блок"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
           <path
@@ -73,7 +73,7 @@ function BlockListItem({
       <button
         className="cursor-grab rounded p-1 text-black/50 hover:bg-black/[.08] dark:text-white/50 dark:hover:bg-white/[.12]"
         type="button"
-        aria-label="Drag block"
+        aria-label="Переместить блок"
         {...attributes}
         {...listeners}
       >
@@ -108,7 +108,7 @@ export default function BlockList({
   return (
     <div className="space-y-2">
       <h3 className="text-xs font-semibold uppercase tracking-wide text-black/60 dark:text-white/60">
-        Block list
+        Список блоков
       </h3>
       <DndContext
         sensors={sensors}
@@ -132,7 +132,7 @@ export default function BlockList({
             ))}
             {blocks.length === 0 ? (
               <p className="rounded border border-dashed border-black/20 p-3 text-xs text-black/50 dark:border-white/20 dark:text-white/50">
-                Add blocks to build your popup.
+                Добавьте блоки для создания попапа.
               </p>
             ) : null}
           </div>

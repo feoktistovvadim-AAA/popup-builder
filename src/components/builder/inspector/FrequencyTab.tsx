@@ -17,13 +17,13 @@ export default function FrequencyTab({
         <div className="space-y-4">
             <section className="rounded-lg p-4 space-y-4" style={{ border: "1px solid var(--border)", background: "var(--surface)" }}>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                    Display Limits
+                    Лимиты показов
                 </h3>
                 <div className="grid grid-cols-2 gap-3">
                     <label className={labelCls}>
-                        Max per session
+                        Макс. за сессию
                         <input className={inputCls} style={inputStyle} type="number"
-                            placeholder="Unlimited"
+                            placeholder="Без ограничений"
                             value={frequency.maxPerSession ?? ""}
                             onChange={(e) => onUpdateFrequency({
                                 ...frequency,
@@ -31,9 +31,9 @@ export default function FrequencyTab({
                             })} />
                     </label>
                     <label className={labelCls}>
-                        Max per 24h
+                        Макс. за 24ч
                         <input className={inputCls} style={inputStyle} type="number"
-                            placeholder="Unlimited"
+                            placeholder="Без ограничений"
                             value={frequency.maxPer24h ?? ""}
                             onChange={(e) => onUpdateFrequency({
                                 ...frequency,
@@ -45,12 +45,12 @@ export default function FrequencyTab({
 
             <section className="rounded-lg p-4 space-y-4" style={{ border: "1px solid var(--border)", background: "var(--surface)" }}>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                    Cooldown
+                    Пауза
                 </h3>
                 <label className={labelCls}>
-                    Cooldown after close (hours)
+                    Пауза после закрытия (часы)
                     <input className={inputCls} style={inputStyle} type="number"
-                        placeholder="No cooldown"
+                        placeholder="Без паузы"
                         value={frequency.cooldownAfterCloseHours ?? ""}
                         onChange={(e) => onUpdateFrequency({
                             ...frequency,
@@ -61,7 +61,7 @@ export default function FrequencyTab({
 
             <section className="rounded-lg p-4 space-y-3" style={{ border: "1px solid var(--border)", background: "var(--surface)" }}>
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-black/40 dark:text-white/40">
-                    Behavior
+                    Поведение
                 </h3>
                 <label className="flex items-center gap-3 text-sm text-black/70 dark:text-white/70 cursor-pointer group">
                     <div className="relative">
@@ -71,7 +71,7 @@ export default function FrequencyTab({
                         <div className="h-5 w-9 rounded-full bg-black/10 peer-checked:bg-black dark:bg-white/10 dark:peer-checked:bg-white transition-colors" />
                         <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm peer-checked:translate-x-4 dark:bg-black transition-transform" />
                     </div>
-                    <span className="text-xs font-medium">Show once per visitor</span>
+                    <span className="text-xs font-medium">Показывать один раз на посетителя</span>
                 </label>
                 <label className="flex items-center gap-3 text-sm text-black/70 dark:text-white/70 cursor-pointer group">
                     <div className="relative">
@@ -81,7 +81,7 @@ export default function FrequencyTab({
                         <div className="h-5 w-9 rounded-full bg-black/10 peer-checked:bg-black dark:bg-white/10 dark:peer-checked:bg-white transition-colors" />
                         <div className="absolute left-0.5 top-0.5 h-4 w-4 rounded-full bg-white shadow-sm peer-checked:translate-x-4 dark:bg-black transition-transform" />
                     </div>
-                    <span className="text-xs font-medium">Per campaign (not global)</span>
+                    <span className="text-xs font-medium">На кампанию (не глобально)</span>
                 </label>
             </section>
         </div>

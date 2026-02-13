@@ -44,7 +44,7 @@ export default function SitesList({
                 type="button"
                 onClick={() => setActiveSite(site)}
               >
-                Install code
+                Код установки
               </button>
             </div>
           </div>

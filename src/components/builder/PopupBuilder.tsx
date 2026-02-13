@@ -85,9 +85,9 @@ function createBlock(type: BlockType): PopupBlock {
 }
 
 const statusConfig = {
-  DRAFT: { label: "Draft", bg: "var(--status-draft-bg)", color: "var(--status-draft)" },
-  PUBLISHED: { label: "Published", bg: "var(--status-published-bg)", color: "var(--status-published)" },
-  ARCHIVED: { label: "Archived", bg: "var(--status-archived-bg)", color: "var(--status-archived)" },
+  DRAFT: { label: "Черновик", bg: "var(--status-draft-bg)", color: "var(--status-draft)" },
+  PUBLISHED: { label: "Опубликован", bg: "var(--status-published-bg)", color: "var(--status-published)" },
+  ARCHIVED: { label: "Архив", bg: "var(--status-archived-bg)", color: "var(--status-archived)" },
 } as const;
 
 export default function PopupBuilder({
@@ -229,11 +229,11 @@ export default function PopupBuilder({
     setSaving(false);
 
     if (!response.ok) {
-      setMessage("Failed to save changes.");
+      setMessage("Не удалось сохранить.");
       return;
     }
 
-    setMessage(publish ? "Popup published." : "Draft saved.");
+    setMessage(publish ? "Попап опубликован." : "Черновик сохранён.");
   };
 
   const handleLanguagesUpdate = (enabledLangs: string[]) => {
@@ -269,14 +269,14 @@ export default function PopupBuilder({
 
     if (!response.ok) {
       const data = await response.json();
-      setMessage(data?.error ?? "Failed to save preset.");
+      setMessage(data?.error ?? "Не удалось сохранить пресет.");
       return;
     }
 
     setPresetName("");
     setPresetDescription("");
     setShowPresetModal(false);
-    setMessage("Preset saved.");
+    setMessage("Пресет сохранён.");
   };
 
   const status = statusConfig[popupStatus];
@@ -299,7 +299,7 @@ export default function PopupBuilder({
               </span>
             </div>
             <p className="mt-0.5 text-xs text-black/40 dark:text-white/40">
-              Version {versionId.slice(0, 8)}
+              Версия {versionId.slice(0, 8)}
             </p>
           </div>
         </div>
@@ -347,7 +347,7 @@ export default function PopupBuilder({
             type="button"
             onClick={() => setShowPresetModal(true)}
           >
-            Save preset
+            Сохранить пресет
           </button>
           <button
             className="rounded-md px-3 py-1.5 text-xs font-medium transition-colors disabled:opacity-50"
@@ -359,9 +359,9 @@ export default function PopupBuilder({
             {saving ? (
               <span className="flex items-center gap-1.5">
                 <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-20" /><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
-                Saving
+                Сохранение
               </span>
-            ) : "Save"}
+            ) : "Сохранить"}
           </button>
           <button
             className="rounded-md bg-black px-3 py-1.5 text-xs font-semibold text-white hover:bg-black/90 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-colors"
@@ -372,9 +372,9 @@ export default function PopupBuilder({
             {saving ? (
               <span className="flex items-center gap-1.5">
                 <svg className="h-3 w-3 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-20" /><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" /></svg>
-                Publishing
+                Публикация
               </span>
-            ) : "Publish"}
+            ) : "Опубликовать"}
           </button>
         </div>
       </div>
@@ -459,21 +459,21 @@ export default function PopupBuilder({
             className={clsx("flex flex-col items-center gap-1 p-2 text-xs font-medium", mobileTab === "preview" ? "text-black dark:text-white" : "text-black/40 dark:text-white/40")}
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-            Preview
+            Просмотр
           </button>
           <button
             onClick={() => setMobileTab("add")}
             className={clsx("flex flex-col items-center gap-1 p-2 text-xs font-medium", mobileTab === "add" ? "text-black dark:text-white" : "text-black/40 dark:text-white/40")}
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 4v16m8-8H4" strokeLinecap="round" strokeLinejoin="round" /></svg>
-            Add
+            Добавить
           </button>
           <button
             onClick={() => setMobileTab("edit")}
             className={clsx("flex flex-col items-center gap-1 p-2 text-xs font-medium", mobileTab === "edit" ? "text-black dark:text-white" : "text-black/40 dark:text-white/40")}
           >
             <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-            Edit
+            Редактировать
           </button>
         </div>
       </div>
@@ -485,7 +485,7 @@ export default function PopupBuilder({
           <div className="absolute inset-0" onClick={() => setMobileTab("preview")} />
           <div className="relative max-h-[80vh] w-full overflow-y-auto rounded-t-xl bg-white p-6 shadow-2xl dark:bg-black animate-in slide-in-from-bottom duration-300">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Add Block</h3>
+              <h3 className="text-lg font-semibold dark:text-white">Добавить блок</h3>
               <button onClick={() => setMobileTab("preview")} className="rounded-full bg-black/5 p-1 dark:bg-white/10"><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" /></svg></button>
             </div>
             <BlockPalette
@@ -509,7 +509,7 @@ export default function PopupBuilder({
           <div className="absolute inset-0" onClick={() => setMobileTab("preview")} />
           <div className="relative max-h-[85vh] w-full overflow-y-auto rounded-t-xl bg-white p-6 shadow-2xl dark:bg-black animate-in slide-in-from-bottom duration-300">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold dark:text-white">Edit Popup</h3>
+              <h3 className="text-lg font-semibold dark:text-white">Редактировать попап</h3>
               <button onClick={() => setMobileTab("preview")} className="rounded-full bg-black/5 p-1 dark:bg-white/10"><svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor"><path d="M6 18L18 6M6 6l12 12" strokeWidth="2" strokeLinecap="round" /></svg></button>
             </div>
             <InspectorTabs
@@ -528,7 +528,7 @@ export default function PopupBuilder({
               }
             />
             <div className="mt-8 border-t pt-6" style={{ borderColor: "var(--border)" }}>
-              <h4 className="mb-3 text-sm font-semibold dark:text-white">Layers</h4>
+              <h4 className="mb-3 text-sm font-semibold dark:text-white">Слои</h4>
               <BlockList
                 blocks={schema.blocks}
                 selectedBlockId={selectedBlockId}
@@ -560,10 +560,10 @@ export default function PopupBuilder({
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-lg font-semibold text-black dark:text-white">
-                  Save preset
+                  Сохранить пресет
                 </h2>
                 <p className="mt-1 text-sm text-black/50 dark:text-white/50">
-                  Save this popup design and rules as a preset.
+                  Сохранить дизайн и правила этого попапа как пресет.
                 </p>
               </div>
               <button
@@ -579,7 +579,7 @@ export default function PopupBuilder({
             <div className="mt-5 space-y-3">
               <div>
                 <label className="text-xs font-medium text-black/60 dark:text-white/60">
-                  Preset name
+                  Название пресета
                 </label>
                 <input
                   className="mt-1.5 w-full rounded-md px-3 py-2 text-sm text-black outline-none transition-colors dark:text-white"
@@ -590,7 +590,7 @@ export default function PopupBuilder({
               </div>
               <div>
                 <label className="text-xs font-medium text-black/60 dark:text-white/60">
-                  Description (optional)
+                  Описание (необязательно)
                 </label>
                 <textarea
                   className="mt-1.5 w-full rounded-md px-3 py-2 text-sm text-black outline-none transition-colors dark:text-white"
@@ -608,7 +608,7 @@ export default function PopupBuilder({
                 type="button"
                 onClick={() => setShowPresetModal(false)}
               >
-                Cancel
+                Отмена
               </button>
               <button
                 className="rounded-md bg-black px-4 py-2 text-sm font-semibold text-white hover:bg-black/90 disabled:opacity-50 dark:bg-white dark:text-black dark:hover:bg-white/90 transition-colors"
@@ -616,7 +616,7 @@ export default function PopupBuilder({
                 disabled={presetSaving || !presetName}
                 onClick={savePreset}
               >
-                {presetSaving ? "Saving..." : "Save preset"}
+                {presetSaving ? "Сохранение..." : "Сохранить пресет"}
               </button>
             </div>
           </div>

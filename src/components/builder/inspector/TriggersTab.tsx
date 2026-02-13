@@ -15,27 +15,27 @@ const triggerOptions: Trigger["type"][] = [
 ];
 
 const triggerLabels: Record<string, string> = {
-    after_seconds: "After Seconds",
-    scroll_percent: "Scroll Percentage",
-    exit_intent_desktop: "Exit Intent (Desktop)",
-    smart_exit_intent: "Smart Exit Intent",
-    custom_event: "Custom JS Event",
-    inactivity: "User Inactivity",
-    pageview_count: "Pageview Count",
-    url_match: "URL Match",
-    device_is: "Device Type",
+    after_seconds: "После секунд",
+    scroll_percent: "Процент прокрутки",
+    exit_intent_desktop: "Exit Intent (Десктоп)",
+    smart_exit_intent: "Умный Exit Intent",
+    custom_event: "JS событие",
+    inactivity: "Неактивность",
+    pageview_count: "Кол-во просмотров",
+    url_match: "Совпадение URL",
+    device_is: "Тип устройства",
 };
 
 const triggerDescriptions: Record<string, string> = {
-    after_seconds: "Show after a specified time delay",
-    scroll_percent: "Show when user scrolls to a percentage",
-    exit_intent_desktop: "Detect cursor leaving the viewport",
-    smart_exit_intent: "Multi-signal exit intent detection",
-    custom_event: "Trigger via JavaScript custom event",
-    inactivity: "Show after user goes idle",
-    pageview_count: "Show after N page views",
-    url_match: "Show on matching URLs only",
-    device_is: "Show on specific device type",
+    after_seconds: "Показать после заданной задержки",
+    scroll_percent: "Показать при прокрутке до процента",
+    exit_intent_desktop: "Определить уход курсора за пределы экрана",
+    smart_exit_intent: "Мультисигнальное определение ухода",
+    custom_event: "Триггер через JavaScript событие",
+    inactivity: "Показать после неактивности пользователя",
+    pageview_count: "Показать после N просмотров страниц",
+    url_match: "Показать только на совпадающих URL",
+    device_is: "Показать на конкретном типе устройства",
 };
 
 const inputCls = "w-full rounded-md border px-2.5 py-1.5 text-sm text-black outline-none transition-colors focus:border-black/30 dark:text-white dark:focus:border-white/30";
@@ -69,7 +69,7 @@ export default function TriggersTab({
         <div className="space-y-3">
             {triggers.length === 0 && (
                 <p className="text-xs text-black/40 dark:text-white/40 py-4 text-center">
-                    No triggers configured. Add one to control when the popup appears.
+                    Триггеры не настроены. Добавьте триггер, чтобы управлять показом попапа.
                 </p>
             )}
 
@@ -104,7 +104,7 @@ export default function TriggersTab({
                         <button
                             className="shrink-0 rounded-md p-1.5 text-black/30 hover:bg-red-50 hover:text-red-600 dark:text-white/30 dark:hover:bg-red-500/10 dark:hover:text-red-400 transition-colors"
                             type="button"
-                            title="Remove trigger"
+                            title="Удалить триггер"
                             onClick={() => {
                                 const next = triggers.filter((_, idx) => idx !== index);
                                 onUpdateTriggers(next);
@@ -120,7 +120,7 @@ export default function TriggersTab({
                     <div className="space-y-2">
                         {(trigger.type === "after_seconds" || trigger.type === "inactivity") && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Seconds
+                                Секунды
                                 <input className={inputCls} style={inputStyle} type="number"
                                     value={getTriggerParam(trigger, "seconds", 5)}
                                     onChange={(e) => {
@@ -133,7 +133,7 @@ export default function TriggersTab({
 
                         {trigger.type === "scroll_percent" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Scroll Percentage
+                                Процент прокрутки
                                 <input className={inputCls} style={inputStyle} type="number"
                                     value={getTriggerParam(trigger, "percent", 10)}
                                     onChange={(e) => {
@@ -146,7 +146,7 @@ export default function TriggersTab({
 
                         {trigger.type === "custom_event" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Event Name
+                                Имя события
                                 <input className={inputCls} style={inputStyle}
                                     placeholder="e.g. show_bonus_popup"
                                     value={getTriggerParam(trigger, "name", trigger.eventName ?? "")}
@@ -161,7 +161,7 @@ export default function TriggersTab({
                         {trigger.type === "url_match" && (
                             <div className="space-y-2">
                                 <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                    URL Pattern
+                                    Шаблон URL
                                     <input className={inputCls} style={inputStyle}
                                         placeholder="/cashier, /deposit/*"
                                         value={getTriggerParam(trigger, "pattern", "")}
@@ -172,7 +172,7 @@ export default function TriggersTab({
                                         }} />
                                 </label>
                                 <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                    Match Mode
+                                    Режим совпадения
                                     <select className={inputCls} style={inputStyle}
                                         value={getTriggerParam(trigger, "match", "contains")}
                                         onChange={(e) => {
@@ -180,9 +180,9 @@ export default function TriggersTab({
                                             next[index] = setTriggerParam(trigger, "match", e.target.value) as Trigger;
                                             onUpdateTriggers(next);
                                         }}>
-                                        <option value="contains">Contains</option>
-                                        <option value="equals">Equals</option>
-                                        <option value="regex">Regex</option>
+                                        <option value="contains">Содержит</option>
+                                        <option value="equals">Равно</option>
+                                        <option value="regex">Регулярное выражение</option>
                                     </select>
                                 </label>
                             </div>
@@ -190,7 +190,7 @@ export default function TriggersTab({
 
                         {trigger.type === "pageview_count" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Page View Count
+                                Кол-во просмотров
                                 <input className={inputCls} style={inputStyle} type="number"
                                     value={getTriggerParam(trigger, "count", 1)}
                                     onChange={(e) => {
@@ -203,7 +203,7 @@ export default function TriggersTab({
 
                         {trigger.type === "device_is" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Device
+                                Устройство
                                 <select className={inputCls} style={inputStyle}
                                     value={getTriggerParam(trigger, "device", "desktop")}
                                     onChange={(e) => {
@@ -219,7 +219,7 @@ export default function TriggersTab({
 
                         {trigger.type === "exit_intent_desktop" && (
                             <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                Sensitivity (px from top)
+                                Чувствительность (px от верха)
                                 <input className={inputCls} style={inputStyle} type="number"
                                     value={getTriggerParam(trigger, "sensitivity", 10)}
                                     onChange={(e) => {
@@ -233,7 +233,7 @@ export default function TriggersTab({
                         {trigger.type === "smart_exit_intent" && (
                             <>
                                 <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                    Desktop Sensitivity (px)
+                                    Чувствительность десктоп (px)
                                     <input className={inputCls} style={inputStyle} type="number"
                                         value={getTriggerParam(trigger, "sensitivity", 10)}
                                         onChange={(e) => {
@@ -243,7 +243,7 @@ export default function TriggersTab({
                                         }} />
                                 </label>
                                 <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                    Mobile Scroll Velocity (px/s)
+                                    Скорость прокрутки мобайл (px/s)
                                     <input className={inputCls} style={inputStyle} type="number"
                                         value={getTriggerParam(trigger, "scrollVelocityThreshold", 800)}
                                         onChange={(e) => {
@@ -253,7 +253,7 @@ export default function TriggersTab({
                                         }} />
                                 </label>
                                 <label className="space-y-1 text-xs font-medium text-black/60 dark:text-white/60">
-                                    Mobile Top Scroll (px)
+                                    Мобайл: прокрутка вверх (px)
                                     <input className={inputCls} style={inputStyle} type="number"
                                         value={getTriggerParam(trigger, "topScrollThreshold", 120)}
                                         onChange={(e) => {
@@ -274,7 +274,7 @@ export default function TriggersTab({
                 type="button"
                 onClick={() => onUpdateTriggers([...triggers, { type: "after_seconds", seconds: 5 }])}
             >
-                + Add trigger
+                + Добавить триггер
             </button>
         </div>
     );

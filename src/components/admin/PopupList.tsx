@@ -108,7 +108,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
       router.refresh();
     } catch (actionError) {
       setToastError(
-        actionError instanceof Error ? actionError.message : "Action failed."
+        actionError instanceof Error ? actionError.message : "Ошибка выполнения."
       );
     } finally {
       setLoadingPopupId(null);
@@ -131,20 +131,20 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
             checked={showArchived}
             onChange={(event) => setShowArchived(event.target.checked)}
           />
-          Show archived
+          Показывать архивные
         </label>
 
         {/* Range Selector */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-black/70 dark:text-white/70">Range:</span>
+          <span className="text-xs text-black/70 dark:text-white/70">Период:</span>
           <div className="flex rounded-lg border border-black/10 bg-white dark:border-white/10 dark:bg-black">
             {(["24h", "7d", "30d", "all"] as TimeRange[]).map((r) => (
               <button
                 key={r}
                 onClick={() => setRange(r)}
                 className={`px-3 py-1 text-xs font-medium transition-colors first:rounded-l-lg last:rounded-r-lg ${range === r
-                    ? "bg-black text-white dark:bg-white dark:text-black"
-                    : "text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white"
+                  ? "bg-black text-white dark:bg-white dark:text-black"
+                  : "text-black/60 hover:text-black dark:text-white/60 dark:hover:text-white"
                   }`}
               >
                 {r}
@@ -156,7 +156,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
 
       {visiblePopups.length === 0 ? (
         <p className="text-sm text-black/60 dark:text-white/60">
-          No popups yet. Create your first campaign.
+          Попапов пока нет. Создайте первую кампанию.
         </p>
       ) : (
         <div className="space-y-3">
@@ -195,7 +195,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                         className="rounded-lg bg-black px-3 py-1.5 text-xs font-medium text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90"
                         href={`/admin/popups/${popup.id}/builder`}
                       >
-                        Builder
+                        Конструктор
                       </Link>
                       <button
                         className="rounded-lg border border-black/10 px-3 py-1.5 text-xs font-medium text-black/80 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
@@ -203,7 +203,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                         disabled={isLoading}
                         onClick={() => runAction(popup, "duplicate")}
                       >
-                        Duplicate
+                        Дублировать
                       </button>
                       {popup.status === "PUBLISHED" ? (
                         <button
@@ -212,7 +212,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                           disabled={isLoading}
                           onClick={() => runAction(popup, "unpublish")}
                         >
-                          Unpublish
+                          Снять с публикации
                         </button>
                       ) : null}
                       <button
@@ -221,7 +221,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                         disabled={isLoading || popup.status === "ARCHIVED"}
                         onClick={() => requestArchiveConfirm(popup)}
                       >
-                        Archive
+                        Архивировать
                       </button>
                     </div>
                   </div>
@@ -230,13 +230,13 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                 {/* Analytics Row */}
                 {loadingAnalytics ? (
                   <div className="text-xs text-black/40 dark:text-white/40">
-                    Loading analytics...
+                    Загрузка аналитики...
                   </div>
                 ) : stats ? (
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
                     <div>
                       <div className="text-xs text-black/60 dark:text-white/60">
-                        Impressions
+                        Показы
                       </div>
                       <div className="text-sm font-medium text-black dark:text-white">
                         {stats.impressions.toLocaleString()}
@@ -244,7 +244,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                     </div>
                     <div>
                       <div className="text-xs text-black/60 dark:text-white/60">
-                        Clicks
+                        Клики
                       </div>
                       <div className="text-sm font-medium text-black dark:text-white">
                         {stats.clicks.toLocaleString()}
@@ -260,7 +260,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                     </div>
                     <div>
                       <div className="text-xs text-black/60 dark:text-white/60">
-                        Closes
+                        Закрытия
                       </div>
                       <div className="text-sm font-medium text-black dark:text-white">
                         {stats.closes.toLocaleString()}
@@ -268,7 +268,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                     </div>
                     <div>
                       <div className="text-xs text-black/60 dark:text-white/60">
-                        Close Rate
+                        % закрытий
                       </div>
                       <div className="text-sm font-medium text-black dark:text-white">
                         {stats.closeRate.toFixed(2)}%
@@ -277,7 +277,7 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                   </div>
                 ) : (
                   <div className="text-xs text-black/40 dark:text-white/40">
-                    No data for this period
+                    Нет данных за этот период
                   </div>
                 )}
               </div>
@@ -290,10 +290,10 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
           <div className="w-full max-w-md rounded-xl border border-black/10 bg-white p-6 shadow-lg dark:border-white/10 dark:bg-black">
             <h3 className="text-lg font-semibold text-black dark:text-white">
-              Archive popup?
+              Архивировать попап?
             </h3>
             <p className="mt-2 text-sm text-black/70 dark:text-white/70">
-              {`This will hide "${confirmPopup.name}" from the default list.`}
+              {`Это скроет "${confirmPopup.name}" из основного списка.`}
             </p>
             <div className="mt-5 flex items-center justify-end gap-2">
               <button
@@ -313,8 +313,8 @@ export default function PopupList({ popups }: { popups: PopupListItem[] }) {
                 onClick={() => runAction(confirmPopup, "archive")}
               >
                 {loadingPopupId === confirmPopup.id
-                  ? "Working..."
-                  : "Archive"}
+                  ? "Выполняется..."
+                  : "Архивировать"}
               </button>
             </div>
           </div>

@@ -18,11 +18,11 @@ import FrequencyTab from "./FrequencyTab";
 import AdvancedTab from "./AdvancedTab";
 
 const tabs = [
-    { id: "design", label: "Design" },
-    { id: "triggers", label: "Triggers" },
-    { id: "targeting", label: "Targeting" },
-    { id: "frequency", label: "Frequency" },
-    { id: "advanced", label: "Advanced" },
+    { id: "design", label: "Дизайн" },
+    { id: "triggers", label: "Триггеры" },
+    { id: "targeting", label: "Таргетинг" },
+    { id: "frequency", label: "Частота" },
+    { id: "advanced", label: "Ещё" },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];

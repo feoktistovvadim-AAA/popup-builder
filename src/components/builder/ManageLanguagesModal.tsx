@@ -52,7 +52,7 @@ export default function ManageLanguagesModal({
 
             {/* Modal */}
             <div className="relative w-full max-w-md rounded-lg border border-black/10 bg-white p-6 shadow-xl dark:border-white/10 dark:bg-black">
-                <h2 className="mb-4 text-xl font-semibold">Manage Languages</h2>
+                <h2 className="mb-4 text-xl font-semibold">Управление языками</h2>
 
                 {/* Enabled languages list */}
                 <div className="mb-4 space-y-2">
@@ -69,7 +69,7 @@ export default function ManageLanguagesModal({
                                     <span className="font-medium">{langInfo.name}</span>
                                     {isBase && (
                                         <span className="rounded bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700 dark:bg-purple-900 dark:text-purple-300">
-                                            Base
+                                            Основной
                                         </span>
                                     )}
                                 </div>
@@ -120,7 +120,7 @@ export default function ManageLanguagesModal({
                                     d="M12 4v16m8-8H4"
                                 />
                             </svg>
-                            Add Language
+                            Добавить язык
                         </button>
 
                         {showAddDropdown && (
@@ -154,14 +154,14 @@ export default function ManageLanguagesModal({
                         className="flex-1 rounded-md border border-black/10 px-4 py-2 font-medium transition-colors hover:bg-black/5 dark:border-white/10 dark:hover:bg-white/5"
                         type="button"
                     >
-                        Cancel
+                        Отмена
                     </button>
                     <button
                         onClick={handleSave}
                         className="flex-1 rounded-md bg-purple-600 px-4 py-2 font-medium text-white transition-colors hover:bg-purple-700"
                         type="button"
                     >
-                        Save
+                        Сохранить
                     </button>
                 </div>
             </div>

@@ -67,7 +67,7 @@ export default function InstallCodeModal({
         <div className="flex items-start justify-between gap-4">
           <div>
             <h2 className="text-lg font-semibold text-black dark:text-white">
-              Installation code
+              Код установки
             </h2>
             <p className="mt-1 text-sm text-black/60 dark:text-white/60">
               {site.name} · {site.domain}
@@ -91,7 +91,7 @@ export default function InstallCodeModal({
 
         {showWarning ? (
           <div className="mt-4 rounded border border-amber-300 bg-amber-50 px-4 py-3 text-xs text-amber-900">
-            Widget origin is not configured. Set NEXT_PUBLIC_WIDGET_ORIGIN on
+            Widget origin не настроен. Укажите NEXT_PUBLIC_WIDGET_ORIGIN на
             Vercel.
           </div>
         ) : null}
@@ -107,7 +107,7 @@ export default function InstallCodeModal({
             type="button"
             onClick={() => setActiveTab("direct")}
           >
-            Direct embed
+            Прямое встраивание
           </button>
           <button
             className={clsx(
@@ -131,7 +131,7 @@ export default function InstallCodeModal({
 
         <div className="mt-4 flex items-center justify-between text-xs text-black/60 dark:text-white/60">
           <span>
-            Paste in the site <code>&lt;head&gt;</code> or GTM Custom HTML tag.
+            Вставьте в <code>&lt;head&gt;</code> сайта или в Custom HTML тег GTM.
           </span>
           <button
             className="rounded border border-black/10 px-3 py-1 text-xs text-black/80 hover:bg-black/[.04] dark:border-white/10 dark:text-white/80 dark:hover:bg-white/[.08]"
@@ -139,7 +139,7 @@ export default function InstallCodeModal({
             onClick={handleCopy}
             disabled={showWarning}
           >
-            {copied ? "Copied" : "Copy"}
+            {copied ? "Скопировано" : "Копировать"}
           </button>
         </div>
       </div>

@@ -25,7 +25,7 @@ export default function CreateSiteForm() {
 
     if (!response.ok) {
       const data = await response.json();
-      setError(data?.error ?? "Failed to create site.");
+      setError(data?.error ?? "Не удалось создать сайт.");
       return;
     }
 
@@ -39,7 +39,7 @@ export default function CreateSiteForm() {
       <div className="grid gap-3 md:grid-cols-2">
         <div>
           <label className="text-xs font-medium text-black/70 dark:text-white/70">
-            Site name
+            Название сайта
           </label>
           <input
             className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -51,7 +51,7 @@ export default function CreateSiteForm() {
         </div>
         <div>
           <label className="text-xs font-medium text-black/70 dark:text-white/70">
-            Domain
+            Домен
           </label>
           <input
             className="mt-1 w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-black outline-none focus:border-black/40 dark:border-white/10 dark:bg-black dark:text-white"
@@ -70,7 +70,7 @@ export default function CreateSiteForm() {
         type="submit"
         disabled={loading}
       >
-        {loading ? "Creating..." : "Create site"}
+        {loading ? "Создание..." : "Создать сайт"}
       </button>
     </form>
   );
